@@ -6,7 +6,17 @@ import io.vertx.core.http.*
 import groovy.json.*
 import java.nio.file.*;
 import peppermint.*;
+import javax.script.*;
 
+def getEngineName(scriptPath) {
+	if (scriptPath.endsWith('groovy')) {
+		return 'groovy'
+	}
+	if (scriptPath.endsWith('js')) {
+		return 'nashorn'
+	}
+	
+}
 //-----------------------------------------
 // START OF SCRIPT
 //-----------------------------------------
@@ -38,13 +48,16 @@ config.routes.each { routeConfig ->
 		def data = routingContext.getBodyAsJson();
 		def response = routingContext.response()
 		response.putHeader("content-type", "application/json")
-		def binding = new Binding([recordType: recType, bodyData: data, response: response ]);
-		def shell = new GroovyShell(binding)
+		def binding = new SimpleBindings([recordType: recType, bodyData: data, response: response ])
+		def manager = new ScriptEngineManager()
+		manager.setBindings(binding);
 		def output = [results:[]]
 		data.records.each{ record -> 
-			binding.setVariable("data", record)
+			binding.put("data", record)
 			def outputEntry = [id: record.id, scripts:[:]] 
 			routeConfig[recType].each { scriptPath ->
+				def engine = manager.getEngineByName(this.getEngineName(scriptPath));
+				
 				if (!scriptPath.startsWith('/')) {
 					scriptPath = "${rootDir}/${config.scriptSubDir}/${scriptPath}"
 				}
@@ -55,7 +68,7 @@ config.routes.each { routeConfig ->
 				}
 				def success = true
 				try {
-					shell.evaluate(new File(scriptPath))
+					engine.eval(new FileReader(scriptPath))
 				} catch (e) {
 					logger.error("Error running script for record type: ${recType}: ${scriptPath}")
 					logger.error(e)

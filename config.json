@@ -1,0 +1,12 @@
+{
+  "port": 8080,
+  "token": "Vj$BE4p9*A%6LCfUyM3u1X8guXG7*j",
+  "scriptSubDir": "scripts",
+  "routes": [
+    {
+      "method": "POST",
+      "path": "/peppermint/:recordType",
+      "dataset": ["print.groovy"]
+    }
+  ]
+}

@@ -1,13 +1,19 @@
-FROM vertx/vertx3
+FROM openjdk:8-jdk-slim
 
-ENV VERTICLE_NAME Main.groovy
-ENV VERTICLE_HOME /opt/peppermint
+ENV APP_HOME /opt/peppermint
 EXPOSE 8080
 
-COPY src/main/groovy/ $VERTICLE_HOME/
-COPY scripts/ $VERTICLE_HOME/scripts/
-COPY config.json $VERTICLE_HOME/
+COPY gradlew $APP_HOME/
+COPY gradle $APP_HOME/gradle
+COPY build.gradle $APP_HOME/
+COPY settings.gradle $APP_HOME/
+COPY src $APP_HOME/src
 
-WORKDIR $VERTICLE_HOME
+RUN cd $APP_HOME && ./gradlew shadowJar
+
+COPY scripts/ $APP_HOME/scripts/
+COPY config.json $APP_HOME/
+
+WORKDIR $APP_HOME
 ENTRYPOINT ["sh", "-c"]
-CMD ["exec vertx run $VERTICLE_NAME -cp $VERTICLE_HOME/*"]
+CMD ["exec java -jar build/libs/peppermint-fat.jar"]

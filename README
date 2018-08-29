@@ -1,4 +1,21 @@
 # Peppermint
 
 JSON data transformer for ReDBox
- 
+
+## Requirements
+
+- JRE installation
+- A Groovy installation
+
+## Building
+
+Install Gradle. Then run command: ` ./gradlew shadowJar`
+
+## Running
+
+### Via Docker
+TODO: add set up info
+
+### Running manually (from the dev environment, etc.)
+
+Run command from project directory: `java -cp <path to groovy installation>/lib/*:./build/libs/peppermint-fat.jar io.vertx.core.Launcher`

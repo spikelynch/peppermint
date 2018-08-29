@@ -15,7 +15,7 @@ def getEngineName(scriptPath) {
 	if (scriptPath.endsWith('js')) {
 		return 'nashorn'
 	}
-	
+
 }
 //-----------------------------------------
 // START OF SCRIPT
@@ -48,16 +48,18 @@ config.routes.each { routeConfig ->
 		def data = routingContext.getBodyAsJson();
 		def response = routingContext.response()
 		response.putHeader("content-type", "application/json")
-		def binding = new SimpleBindings([recordType: recType, bodyData: data, response: response ])
+		def binding = new SimpleBindings([recordType: recType, bodyData: data, response: response, config:config, routeConfig: routeConfig, logger: logger])
 		def manager = new ScriptEngineManager()
 		manager.setBindings(binding);
+		binding.put('manager', manager);
 		def output = [results:[]]
-		data.records.each{ record -> 
+		data.records.each{ record ->
 			binding.put("data", record)
-			def outputEntry = [id: record.id, scripts:[:]] 
-			routeConfig[recType].each { scriptPath ->
+			binding.put("scriptOutput", record)
+			def outputEntry = [id: record.id, scripts:[:]]
+			routeConfig[recType].scripts.each { scriptPath ->
 				def engine = manager.getEngineByName(this.getEngineName(scriptPath));
-				
+				binding.put('engine', engine);
 				if (!scriptPath.startsWith('/')) {
 					scriptPath = "${rootDir}/${config.scriptSubDir}/${scriptPath}"
 				}
@@ -68,7 +70,8 @@ config.routes.each { routeConfig ->
 				}
 				def success = true
 				try {
-					engine.eval(new FileReader(scriptPath))
+					def scriptOutput = engine.eval(new FileReader(scriptPath))
+					binding.put("scriptOutput", scriptOutput)
 				} catch (e) {
 					logger.error("Error running script for record type: ${recType}: ${scriptPath}")
 					logger.error(e)

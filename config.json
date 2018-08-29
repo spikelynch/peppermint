@@ -6,7 +6,18 @@
     {
       "method": "POST",
       "path": "/peppermint/:recordType",
-      "dataset": ["print.groovy"]
+      "jsonld": {
+        "scripts": ["jsonld-parse.groovy", "commit-to-solr.groovy"]
+       }
     }
-  ]
+  ],
+  "jsonld": {
+    "types": {
+      "http://schema.org/GeoCoordinates": "scripts/jsonld-parse/geocoordinates.groovy"
+    }
+  },
+  "solr": {
+    "baseUrl": "http://localhost:8983/solr",
+    "baseCore": "mycore"
+  }
 }

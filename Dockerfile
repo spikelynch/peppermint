@@ -9,10 +9,13 @@ COPY build.gradle $APP_HOME/
 COPY settings.gradle $APP_HOME/
 COPY src $APP_HOME/src
 
-RUN cd $APP_HOME && ./gradlew shadowJar
-
 COPY scripts/ $APP_HOME/scripts/
 COPY config.json $APP_HOME/
+
+COPY support $APP_HOME/support
+RUN cd $APP_HOME && chmod +x support/prep-run.sh && support/prep-run.sh
+
+RUN cd $APP_HOME && ./gradlew shadowJar
 
 WORKDIR $APP_HOME
 ENTRYPOINT ["sh", "-c"]

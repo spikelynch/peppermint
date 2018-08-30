@@ -8,6 +8,15 @@ import com.github.jsonldjava.core.*;
 import com.github.jsonldjava.utils.*;
 
 
+// checking for init runs
+try {
+	if (initRun) {
+		println "JSON LD Parser, init okay."
+		return
+	}
+} catch (e) {
+	// swallowing
+}
 
 def document = [:];
 def slurper = new JsonSlurper()

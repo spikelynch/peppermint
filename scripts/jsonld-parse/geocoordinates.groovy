@@ -1,6 +1,16 @@
 
 import groovy.json.*;
 
+// checking for init runs
+try {
+	if (initRun) {
+		println "JSON LD Parser, init okay."
+		return
+	}
+} catch (e) {
+	// swallowing
+}
+
 def output ='''
 {
   "type": "FeatureCollection",

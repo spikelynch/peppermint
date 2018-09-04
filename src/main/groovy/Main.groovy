@@ -4,9 +4,11 @@ import io.vertx.ext.web.handler.impl.BearerAuthHandler
 import io.vertx.core.logging.*
 import io.vertx.core.http.*
 import groovy.json.*
+import groovy.util.*
 import java.nio.file.*;
 import peppermint.*;
 import javax.script.*;
+import java.util.regex.*
 
 def getEngineName(scriptPath) {
 	if (scriptPath.endsWith('groovy')) {
@@ -17,8 +19,9 @@ def getEngineName(scriptPath) {
 	}
 
 }
+
 //-----------------------------------------
-// START OF SCRIPT
+// START OF Verticle
 //-----------------------------------------
 
 def logger =  LoggerFactory.getLogger(this.getClass());
@@ -33,9 +36,22 @@ if (!Files.exists(Paths.get(configPath))) {
 	return;
 }
 logger.info("Using configuration: ${configPath}");
-// load config
-def jsonSlurper = new JsonSlurper()
-def config = jsonSlurper.parseText(new File(configPath).text)
+// Load up the environment variables
+def configBinding = [:]
+configBinding.putAll(System.getenv())
+if (!configBinding['SOLR_HOST']) {
+	configBinding['SOLR_HOST'] = 'localhost';
+}
+if (!configBinding['SOLR_PORT']) {
+	configBinding['SOLR_PORT'] = '8983';
+}
+// replace the JSON with variables, of form $VARIABLE_NAME
+def configText = new File(configPath).text;
+configBinding.each { bindKey, bindVal ->
+	configText = configText.replaceAll(Matcher.quoteReplacement("\$${bindKey}".toString()), bindVal);
+}
+// parse the configuration
+def config = new JsonSlurper().parseText(configText)
 def server = vertx.createHttpServer()
 def router = Router.router(vertx)
 // install the default body handler
@@ -43,6 +59,7 @@ router.route().handler(BodyHandler.create())
 router.route().handler(new BearerAuthHandler(new BearerAuthProvider(config.token)));
 // build the routers based on configuration
 config.routes.each { routeConfig ->
+	logger.info("Listening to route: ${routeConfig.method}:${routeConfig.path}")
 	router.route(HttpMethod[routeConfig.method], routeConfig.path).blockingHandler({ routingContext ->
 		def recType = routingContext.request().getParam("recordType")
 		def data = routingContext.getBodyAsJson();

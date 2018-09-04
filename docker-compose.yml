@@ -1,9 +1,22 @@
 version: '3.1'
 services:
+  peppermint:
+    image: qcifengineering/peppermint:latest
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    links:
+      - solr:solr
+    environment:
+      - SOLR_HOST=solr
+      - SOLR_PORT=8983
   solr:
     image: solr:7.4
     ports:
-     - "8983:8983"
+      - "8983:8983"
+    expose:
+      - "8983"
     volumes:
       # Please do before: sudo chown 8983:8983 /mnt/data/solr
       - "/mnt/data/solr:/opt/solr/server/solr/mycores"

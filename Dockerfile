@@ -19,4 +19,4 @@ RUN cd $APP_HOME && ./gradlew shadowJar
 
 WORKDIR $APP_HOME
 ENTRYPOINT ["sh", "-c"]
-CMD ["exec java -jar build/libs/peppermint-fat.jar"]
+CMD ["exec java -cp ~/.sdkman/candidates/groovy/current/lib/*:./build/libs/peppermint-fat.jar io.vertx.core.Launcher"]

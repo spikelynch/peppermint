@@ -17,7 +17,7 @@
     }
   },
   "solr": {
-    "baseUrl": "http://localhost:8983/solr",
+    "baseUrl": "http://$SOLR_HOST:$SOLR_PORT/solr",
     "baseCore": "mycore"
   }
 }

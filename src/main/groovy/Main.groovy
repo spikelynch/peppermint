@@ -29,12 +29,26 @@ def rootDir = "/opt/peppermint"
 if (!Files.exists(Paths.get(rootDir))) {
 	rootDir = "./"
 }
-logger.info("Peppermint starting, using root directory: ${rootDir}")
+logger.info("Peppermint starting....using root directory: ${rootDir}")
 def configPath = "${rootDir}/config.json";
 if (!Files.exists(Paths.get(configPath))) {
 	logger.error("Configuration file missing: ${configPath}");
 	return;
 }
+logger.info('''
+------------------------------------------------------------------------------------------------------------------
+.-------.     .-''-.  .-------. .-------.     .-''-.  .-------.    ,---.    ,---..-./`) ,---.   .--.,---------.
+\\  _(`)_ \\  .'_ _   \\ \\  _(`)_ \\\\  _(`)_ \\  .'_ _   \\ |  _ _   \\   |    \\  /    |\\ .-.')|    \\  |  |\\          \\ 
+| (_ o._)| / ( ` )   '| (_ o._)|| (_ o._)| / ( ` )   '| ( ' )  |   |  ,  \\/  ,  |/ `-' \\|  ,  \\ |  | `--.  ,---'
+|  (_,_) /. (_ o _)  ||  (_,_) /|  (_,_) /. (_ o _)  ||(_ o _) /   |  |\\_   /|  | `-'`"`|  |\\_ \\|  |    |   \\
+|   '-.-' |  (_,_)___||   '-.-' |   '-.-' |  (_,_)___|| (_,_).' __ |  _( )_/ |  | .---. |  _( )_\\  |    :_ _:
+|   |     '  \\   .---.|   |     |   |     '  \\   .---.|  |\\ \\  |  || (_ o _) |  | |   | | (_ o _)  |    (_I_)
+|   |      \\  `-'    /|   |     |   |      \\  `-'    /|  | \\ `'   /|  (_,_)  |  | |   | |  (_,_)\\  |   (_(=)_)
+/   )       \\       / /   )     /   )       \\       / |  |  \\    / |  |      |  | |   | |  |    |  |    (_I_)
+`---'        `'-..-'  `---'     `---'        `'-..-'  ''-'   `'-'  '--'      '--' '---' '--'    '--'    '---'
+
+------------------------------------------------------------------------------------------------------------------
+''')
 logger.info("Using configuration: ${configPath}");
 // Load up the environment variables
 def configBinding = [:]
@@ -66,7 +80,7 @@ config.routes.each { routeConfig ->
 		def response = routingContext.response()
 		response.putHeader("content-type", "application/json")
 		def binding = new SimpleBindings([recordType: recType, bodyData: data, response: response, config:config, routeConfig: routeConfig, logger: logger])
-		def manager = new ScriptEngineManager()
+		def manager = new ScriptEngineManager();
 		manager.setBindings(binding);
 		binding.put('manager', manager);
 		def output = [results:[]]

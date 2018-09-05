@@ -12,12 +12,17 @@
     }
   ],
   "jsonld": {
+    "core": "mycore",
+    "generateId": true,
     "types": {
-      "http://schema.org/GeoCoordinates": "scripts/jsonld-parse/geocoordinates.groovy"
-    }
+      "http://schema.org/GeoCoordinates": [
+        "scripts/jsonld-parse/addFlattenedChild.groovy",
+        "scripts/jsonld-parse/geojson.groovy"
+      ]
+    },
+    "defaultHandlerScript": "scripts/jsonld-parse/addFlattenedChild.groovy"
   },
   "solr": {
-    "baseUrl": "http://$SOLR_HOST:$SOLR_PORT/solr",
-    "baseCore": "mycore"
+    "baseUrl": "http://$SOLR_HOST:$SOLR_PORT/solr"
   }
 }

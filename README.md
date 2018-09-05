@@ -11,6 +11,7 @@ JSON data transformer for [ReDBox](http://redboxresearchdata.com.au/), etc.
 
 ### Via Docker
 - Install [docker-compose](https://docs.docker.com/compose/install/)
+- Run: `mkdir /mnt/data/solr; chown 8983:8983 /mnt/data/solr`
 - From the project directory, run: `docker-compose up`
 
 ### Via manual run (from the dev environment, etc.)

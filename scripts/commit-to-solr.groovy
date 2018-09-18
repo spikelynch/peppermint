@@ -17,22 +17,30 @@ import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.client.solrj.*
 import org.apache.solr.client.solrj.impl.*
 
-// checking for init runs
+//-------------------------------------------------------
+// Init, executed once to grab dependencies
+//-------------------------------------------------------
 try {
 	if (initRun) {
-		println "JSON LD Parser, init okay."
+		println "SOLR Committer, init okay."
 		return
 	}
 } catch (e) {
 	// swallowing
 }
+//-------------------------------------------------------
+// Script Fns
+//-------------------------------------------------------
 
+//-------------------------------------------------------
+// Start of Script
+//-------------------------------------------------------
 def getClient(clients, core, format) {
 	def clientId = "${core}_${format ? '?format='+format : ''}"
 	if (clients[clientId]) {
 		return clients[clientId]
 	}
-	final String solrUrl = "${config.solr.baseUrl}/${core}${format ? '?format='+format : ''}";
+	final String solrUrl = "${config.solr.baseUrl}/solr/${core}${format ? '?format='+format : ''}";
 	clients[clientId] = new HttpSolrClient.Builder(solrUrl)
 	  .withConnectionTimeout(10000)
 	  .withSocketTimeout(60000)
@@ -56,7 +64,7 @@ def getSolrDoc(doc) {
 
 def clients = [:]
 
-logger.info "Committing to: ${config.solr.baseUrl}"
+logger.info "Committing to: ${config.solr.baseUrl}/solr"
 
 scriptOutput.each { v ->
 	def doc = getSolrDoc(v.document)

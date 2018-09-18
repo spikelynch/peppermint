@@ -13,7 +13,7 @@ if ! type "groovy" > /dev/null; then
     yum install zip curl -y
   else
     apt-get update
-    apt-get install zip unzip curl -y
+    apt-get install zip unzip curl -y --allow-unauthenticated
   fi
   curl -s "https://get.sdkman.io" | bash
   bash -c "source ${HOME}/.sdkman/bin/sdkman-init.sh && sdk install groovy ${GROOVY_VERSION} < /dev/null"

@@ -6,14 +6,11 @@
  *  entry - the map containing the JSON entry
  *
  */
-@Grapes([
-	@Grab(group='org.apache.solr', module='solr-solrj', version='7.4.0')
-])
-
-import org.apache.solr.common.*;
 import groovy.json.*;
 
-// checking for init runs
+//-------------------------------------------------------
+// Init, executed once to grab dependencies
+//-------------------------------------------------------
 try {
 	if (initRun) {
 		println "Flattened Child script, init okay."
@@ -23,6 +20,13 @@ try {
 	// swallowing
 }
 
+//-------------------------------------------------------
+// Script Fns
+//-------------------------------------------------------
+
+//-------------------------------------------------------
+// Start of Script
+//-------------------------------------------------------
 def doc = [:]
 
 entry.each { k, v ->

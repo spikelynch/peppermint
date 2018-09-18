@@ -2,6 +2,11 @@
   "port": 8080,
   "token": "Vj$BE4p9*A%6LCfUyM3u1X8guXG7*j",
   "scriptSubDir": "scripts",
+  "init": {
+    "scripts": [
+      "init/build-solr-schema.groovy"
+    ]
+  },
   "routes": [
     {
       "method": "POST",
@@ -12,9 +17,13 @@
     }
   ],
   "jsonld": {
-    "core": "mycore",
+    "core": "dataset",
+    "recordTypeName": "dataset",
     "generateId": true,
     "types": {
+      "rootNode": [
+        "scripts/jsonld-parse/addRootDataset.groovy"
+      ],
       "http://schema.org/GeoCoordinates": [
         "scripts/jsonld-parse/addFlattenedChild.groovy",
         "scripts/jsonld-parse/geojson.groovy"
@@ -23,6 +32,24 @@
     "defaultHandlerScript": "scripts/jsonld-parse/addFlattenedChild.groovy"
   },
   "solr": {
-    "baseUrl": "http://$SOLR_HOST:$SOLR_PORT/solr"
+    "baseUrl": "http://$SOLR_HOST:$SOLR_PORT",
+    "cores": ["dataset"],
+    "rebuildSchemaAlways": true,
+    "schema": {
+        "dataset": {
+          "add-field": [
+            {
+              "name": "name",
+              "type": "text_general",
+              "stored": true
+            },
+            {
+              "name": "type",
+              "type": "text_general",
+              "stored": true
+            }
+          ]
+        }
+    }
   }
 }

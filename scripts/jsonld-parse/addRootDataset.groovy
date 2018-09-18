@@ -6,7 +6,11 @@
  *  entry - the map containing the JSON entry
  *
  */
+@Grapes([
+	@Grab(group='org.apache.solr', module='solr-solrj', version='7.4.0')
+])
 
+import org.apache.solr.common.*;
 import groovy.json.*;
 
 //-------------------------------------------------------
@@ -14,12 +18,13 @@ import groovy.json.*;
 //-------------------------------------------------------
 try {
 	if (initRun) {
-		println "GeoJSON Parser, init okay."
+		println "Dataset Root Node processor script, init okay."
 		return
 	}
 } catch (e) {
 	// swallowing
 }
+
 //-------------------------------------------------------
 // Script Fns
 //-------------------------------------------------------
@@ -27,27 +32,14 @@ try {
 //-------------------------------------------------------
 // Start of Script
 //-------------------------------------------------------
-def lat = "${String.valueOf(entry['http://schema.org/longitude'])}"
-def lng = "${String.valueOf(entry['http://schema.org/latitude'])}"
-def output ='''
-{
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {},
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-        ''' +lng+ ''',
-        ''' +lat+ '''
-        ]
-      }
-    }
-  ]
+
+// add to the main document
+entry.each { k, v ->
+  if (k == '@type') {
+    document['type_s'] = v
+  } else if (k == '@id') {
+    document['id'] = v
+  } else {
+    document[k] = v
+  }
 }
-'''
-def doc = [:]
-doc['id'] = entry['@id']
-doc['geojson_s'] = output
-document['_childDocuments_'] << doc

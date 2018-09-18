@@ -14,7 +14,7 @@ JSON data transformer for [ReDBox](http://redboxresearchdata.com.au/), etc.
 - Run: `mkdir /mnt/data/solr; chown 8983:8983 /mnt/data/solr`
 - From the project directory, run: `docker-compose up`
 
-### Via manual run (from the dev environment, etc.)
+### Via manual run
 
 Build, the project (see below), then run command from project directory: `java -cp <path to groovy installation>/lib/*:./build/libs/peppermint-fat.jar io.vertx.core.Launcher`
 

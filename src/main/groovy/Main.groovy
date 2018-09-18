@@ -38,7 +38,7 @@ if (!Files.exists(Paths.get(configPath))) {
 logger.info('''
 ------------------------------------------------------------------------------------------------------------------
 .-------.     .-''-.  .-------. .-------.     .-''-.  .-------.    ,---.    ,---..-./`) ,---.   .--.,---------.
-\\  _(`)_ \\  .'_ _   \\ \\  _(`)_ \\\\  _(`)_ \\  .'_ _   \\ |  _ _   \\   |    \\  /    |\\ .-.')|    \\  |  |\\          \\ 
+\\  _(`)_ \\  .'_ _   \\ \\  _(`)_ \\\\  _(`)_ \\  .'_ _   \\ |  _ _   \\   |    \\  /    |\\ .-.')|    \\  |  |\\          \\
 | (_ o._)| / ( ` )   '| (_ o._)|| (_ o._)| / ( ` )   '| ( ' )  |   |  ,  \\/  ,  |/ `-' \\|  ,  \\ |  | `--.  ,---'
 |  (_,_) /. (_ o _)  ||  (_,_) /|  (_,_) /. (_ o _)  ||(_ o _) /   |  |\\_   /|  | `-'`"`|  |\\_ \\|  |    |   \\
 |   '-.-' |  (_,_)___||   '-.-' |   '-.-' |  (_,_)___|| (_,_).' __ |  _( )_/ |  | .---. |  _( )_\\  |    :_ _:
@@ -66,6 +66,35 @@ configBinding.each { bindKey, bindVal ->
 }
 // parse the configuration
 def config = new JsonSlurper().parseText(configText)
+// Run init scripts...
+def manager = new ScriptEngineManager();
+def initBinding = new SimpleBindings([config:config, logger:logger])
+manager.setBindings(initBinding)
+vertx.executeBlocking({future ->
+	logger.info("Running init scripts...")
+	config.init.scripts.each { scriptPath ->
+		def engine = manager.getEngineByName(this.getEngineName(scriptPath));
+		if (!scriptPath.startsWith('/')) {
+			scriptPath = "${rootDir}/${config.scriptSubDir}/${scriptPath}"
+		}
+		def scriptPathObj = Paths.get(scriptPath)
+		if (!Files.exists(scriptPathObj)) {
+			logger.error("Script not found for ${recType}: ${scriptPath}")
+			logger.error("Please check your configuration.")
+		}
+		try {
+			logger.info("Running: ${scriptPath}");
+			engine.eval(new FileReader(scriptPath))
+		} catch (e) {
+			logger.error("Error running init script ${scriptPath}")
+			logger.error(e)
+		}
+	}
+	future.complete(null)
+}, true, { res ->
+	logger.info("Init completed.");
+})
+
 def server = vertx.createHttpServer()
 def router = Router.router(vertx)
 // install the default body handler
@@ -80,7 +109,6 @@ config.routes.each { routeConfig ->
 		def response = routingContext.response()
 		response.putHeader("content-type", "application/json")
 		def binding = new SimpleBindings([recordType: recType, bodyData: data, response: response, config:config, routeConfig: routeConfig, logger: logger])
-		def manager = new ScriptEngineManager();
 		manager.setBindings(binding);
 		binding.put('manager', manager);
 		def output = [results:[]]

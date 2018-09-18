@@ -8,6 +8,10 @@ services:
       - "8080"
     links:
       - solr:solr
+    volumes:
+      - "./scripts:/opt/peppermint/scripts"
+      - "./config.json:/opt/peppermint/config.json"
+      - "./build/libs/peppermint-fat.jar:/opt/peppermint/build/libs/peppermint-fat.jar"
     environment:
       - SOLR_HOST=solr
       - SOLR_PORT=8983
@@ -23,4 +27,4 @@ services:
     entrypoint:
       - docker-entrypoint.sh
       - solr-precreate
-      - mycore
+      - dataset

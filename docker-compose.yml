@@ -28,3 +28,9 @@ services:
       - docker-entrypoint.sh
       - solr-precreate
       - dataset
+  nginx:
+    image: nginx:1.15-alpine
+    ports:
+      - "9001:80"
+    volumes:
+      - "../peppermint-portal/dist:/usr/share/nginx/html"

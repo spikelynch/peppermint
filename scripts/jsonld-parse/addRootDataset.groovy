@@ -28,7 +28,21 @@ try {
 //-------------------------------------------------------
 // Script Fns
 //-------------------------------------------------------
-
+def renameIds(v) {
+  if (v instanceof Map) {
+    def remapped = [:]
+    v.each { k, val ->
+      if (k == '@id') {
+        remapped['id'] = val
+      } else {
+        remapped[k] = renameIds(val)
+      }
+    }
+    return remapped
+  } else {
+    return v
+  }
+}
 //-------------------------------------------------------
 // Start of Script
 //-------------------------------------------------------
@@ -40,6 +54,6 @@ entry.each { k, v ->
   } else if (k == '@id') {
     document['id'] = v
   } else {
-    document[k] = v
+    document[k] = renameIds(v)
   }
 }

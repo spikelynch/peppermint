@@ -78,8 +78,7 @@ JsonLdOptions options = new JsonLdOptions()
 def compacted = JsonLdProcessor.compact(data, context, options);
 if (compacted['@graph']) {
 	// find the root node of the graph...
-	// def rootNode = data['@graph'].find { it.path == 'data/' || it.path == './' }
-	def rootNode = [id: '']
+	def rootNode = data['@graph'].find { it.path == 'data/' || it.path == './' }
 	compacted['@graph'].each { entry ->
 		if (entry['@id'] == rootNode['@id']) {
 			processEntry(manager, engine, entry, 'rootNode', false)

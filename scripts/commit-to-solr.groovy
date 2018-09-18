@@ -16,7 +16,7 @@
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.client.solrj.*
 import org.apache.solr.client.solrj.impl.*
-
+import groovy.json.*
 //-------------------------------------------------------
 // Init, executed once to grab dependencies
 //-------------------------------------------------------
@@ -56,10 +56,17 @@ def getSolrDoc(doc) {
 				solrDoc.addChildDocument(getSolrDoc(c))
 			}
 		} else {
-			solrDoc.addField(k, v)
+			solrDoc.addField(k, translateValue(v))
 		}
 	}
 	return solrDoc
+}
+
+def translateValue(v) {
+	if (v instanceof Map || v instanceof List) {
+		return JsonOutput.toJson(v)
+	}
+	return v
 }
 
 def clients = [:]

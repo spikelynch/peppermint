@@ -28,7 +28,7 @@ try {
 //-------------------------------------------------------
 
 def processEntry(manager, engine, entry, type, useDefaultHandler) {
-	def script = config['jsonld'].types[type];
+	def script = recordTypeConfig.types[type];
 	manager.getBindings().put('entry', entry)
 	if (script) {
 		// assumes groovy for now
@@ -43,7 +43,7 @@ def processEntry(manager, engine, entry, type, useDefaultHandler) {
 	} else {
 		if (useDefaultHandler) {
 			logger.info("No script configured for: ${entry['@id']} with type: ${type}, running default handler if configured, ignoring if not.");
-			script = config['jsonld']['defaultHandlerScript']
+			script = recordTypeConfig['defaultHandlerScript']
 			if (script) {
 				try {
 					engine.eval(new FileReader(script))
@@ -70,9 +70,10 @@ def slurper = new JsonSlurper()
 def jsonStr = JsonOutput.toJson(data)
 def context = [:]
 // document['raw_json_t'] =  jsonStr
-document["record_format_s"] = recordType
+recordTypeConfig = config['recordType'][recordType]
+document['record_type_s'] = recordType
+document["record_format_s"] = recordTypeConfig['format']
 document['_childDocuments_'] = []
-
 
 JsonLdOptions options = new JsonLdOptions()
 def compacted = JsonLdProcessor.compact(data, context, options);
@@ -90,7 +91,7 @@ if (compacted['@graph']) {
 }
 // document["raw_compacted_t"] = JsonOutput.toJson(compacted)
 document["date_updated_dt"] = new Date()
-docList << [document: document, core: config['jsonld'].core]
+docList << [document: document, core: recordTypeConfig.core]
 logger.info("JSON LD Parsed:")
 logger.info(docList.toString())
 return docList

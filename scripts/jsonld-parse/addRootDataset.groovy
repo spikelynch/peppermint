@@ -76,7 +76,11 @@ entry.each { k, v ->
 			if (facetConfig.trim) {
 				vals =  trim(vals)
 			}
-			document["${k}_facet"] = vals
+			def suffix = "_facet"
+			if (facetConfig.field_suffix) {
+				suffix = facetConfig.field_suffix
+			}
+			document["${k}${suffix}"] = vals
 		}
     document[k] = renameIds(v)
   }

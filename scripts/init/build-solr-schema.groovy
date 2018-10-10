@@ -35,13 +35,27 @@ def generateCommandStr(commandStr, fieldArr) {
   return fieldStrArr
 }
 
-def replaceExisting(existingFields, mainArr, addArr, replaceArr) {
+def replaceExisting(existingFields, mainArr, addArr, replaceArr, forceReplace, matchClosure = null) {
+  if (!matchClosure) {
+    matchClosure = {entry ->
+      return {
+        it.name == entry.name
+      }
+    }
+  }
   mainArr.each { entry ->
-    def entryExist = existingFields.find { it.name == entry.name }
-    if (entryExist) {
-      replaceArr << entryExist
+    def entryExist = existingFields.find matchClosure(entry)
+    if (forceReplace) {
+      if (entryExist) {
+        replaceArr << entryExist
+      }
+      addArr << entry
     } else {
-      addArr << entry;
+      if (entryExist) {
+        replaceArr << entryExist
+      } else {
+        addArr << entry;
+      }
     }
   }
 }
@@ -67,11 +81,11 @@ def postSchema(core, commandStr) {
   }.post()
 }
 
-def processConfig(core, schemaField, responseFieldName, configArr, addCommandStr, replaceCommandStr, commandStrArr) {
+def processConfig(core, schemaField, responseFieldName, configArr, addCommandStr, replaceCommandStr, commandStrArr, forceReplace = false, matchClosureFn = null) {
   // replace all existing fields...
   def replaceFieldArr = []
   def addFieldArr = []
-  replaceExisting(getSchema(core, schemaField)[responseFieldName], configArr, addFieldArr, replaceFieldArr)
+  replaceExisting(getSchema(core, schemaField)[responseFieldName], configArr, addFieldArr, replaceFieldArr, forceReplace, matchClosureFn)
   commandStrArr.addAll(generateCommandStr(replaceCommandStr, replaceFieldArr))
   commandStrArr.addAll(generateCommandStr(addCommandStr, addFieldArr))
 }
@@ -98,11 +112,20 @@ if (config.solr.rebuildSchemaAlways) {
     def commandStrArr = []
     def addField = config.solr.schema[core]['add-field']
     def addDynamicField = config.solr.schema[core]['add-dynamic-field']
+    def addCopyField = config.solr.schema[core]['add-copy-field']
     if (addField && addField.size() > 0) {
       processConfig(core, 'fields', 'fields', addField, 'add-field', 'replace-field', commandStrArr)
     }
     if (addDynamicField && addDynamicField.size() > 0) {
       processConfig(core, 'dynamicfields', 'dynamicFields', addDynamicField, 'add-dynamic-field', 'replace-dynamic-field', commandStrArr)
+    }
+    if (addCopyField && addCopyField.size() > 0) {
+      def matchClosureFn = { configEntry ->
+        return { existingEntry ->
+          existingEntry.source == configEntry.source && ( configEntry.dest.find { it == existingEntry.dest } )
+        }
+      }
+      processConfig(core, 'copyfields', 'copyFields', addCopyField, 'add-copy-field', 'delete-copy-field', commandStrArr, true, matchClosureFn)
     }
 
     postDataStr = "${postDataStr}${commandStrArr.join(',')}}"

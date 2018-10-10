@@ -37,6 +37,7 @@
       "facets": {
         "https://schema.org/keywords": {
           "trim": true,
+          "field_suffix": "_facet_multi",
           "tokenize": {
             "delim": ","
           }
@@ -66,14 +67,32 @@
               "stored": true
             },
             {
-              "name": "https___schema.org_keywords_facet",
+              "name": "main_search",
+              "type": "text_en",
+              "stored": true,
+              "multiValued": true
+            }
+          ],
+          "add-dynamic-field": [
+            {
+              "name": "*_facet_multi",
               "type": "strings",
-              "stored": true
+              "stored": true,
             },
             {
-              "name": "https___schema.org_publisher_facet",
+              "name": "*_facet",
               "type": "string",
               "stored": true
+            }
+          ],
+          "add-copy-field": [
+            {
+              "source": "https___schema.org_name",
+              "dest": ["main_search"]
+            },
+            {
+              "source": "https___schema.org_description",
+              "dest": ["main_search"]
             }
           ]
         }

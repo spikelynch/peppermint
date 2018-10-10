@@ -115,7 +115,7 @@ config.routes.each { routeConfig ->
 		data.records.each{ record ->
 			binding.put("data", record)
 			binding.put("scriptOutput", record)
-			def outputEntry = [id: record.id, scripts:[:]]
+			def outputEntry = [scripts:[:]]
 			routeConfig[recType].scripts.each { scriptPath ->
 				def engine = manager.getEngineByName(this.getEngineName(scriptPath));
 				binding.put('engine', engine);

@@ -43,17 +43,41 @@ def renameIds(v) {
     return v
   }
 }
+
+def trim(vals) {
+	if (vals instanceof List && vals.size() > 0) {
+		return vals.collect { vals instanceof String ?  it.trim() : it }
+	}
+	return vals
+}
 //-------------------------------------------------------
 // Start of Script
 //-------------------------------------------------------
 
 // add to the main document
+logger.info("Processing root node....")
+logger.info(JsonOutput.toJson(entry))
 entry.each { k, v ->
   if (k == '@type') {
     document['type_s'] = v
   } else if (k == '@id') {
     document['id'] = v
   } else {
+		document[k] = v
+		def facetConfig = recordTypeConfig.facets[k]
+		if (facetConfig) {
+			def vals = null
+			def val = facetConfig.fieldName ? v[facetConfig.fieldName] : v
+			if (facetConfig.tokenize) {
+				vals = val ? val.tokenize(facetConfig.tokenize.delim) : val
+			} else {
+				vals = val
+			}
+			if (facetConfig.trim) {
+				vals =  trim(vals)
+			}
+			document["${k}_facet"] = vals
+		}
     document[k] = renameIds(v)
   }
 }

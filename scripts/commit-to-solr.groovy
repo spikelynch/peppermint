@@ -56,14 +56,20 @@ def getSolrDoc(doc) {
 				solrDoc.addChildDocument(getSolrDoc(c))
 			}
 		} else {
-			solrDoc.addField(k, translateValue(v))
+			if (v instanceof List) {
+				v.each {
+					solrDoc.addField(k, translateValue(it))
+				}
+			} else {
+				solrDoc.addField(k, translateValue(v))
+			}
 		}
 	}
 	return solrDoc
 }
 
 def translateValue(v) {
-	if (v instanceof Map || v instanceof List) {
+	if (v instanceof Map) {
 		return JsonOutput.toJson(v)
 	}
 	return v

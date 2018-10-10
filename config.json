@@ -21,6 +21,8 @@
       "core": "dataset",
       "format": "jsonld",
       "recordTypeName": "dataset",
+      "rootNodeFieldContextId": "path",
+      "rootNodeFieldValues": ["data/", "./"],
       "generateId": true,
       "types": {
         "rootNode": [
@@ -31,7 +33,19 @@
           "scripts/jsonld-parse/geojson.groovy"
         ]
       },
-      "defaultHandlerScript": "scripts/jsonld-parse/addFlattenedChild.groovy"
+      "defaultHandlerScript": "scripts/jsonld-parse/addFlattenedChild.groovy",
+      "facets": {
+        "https://schema.org/keywords": {
+          "trim": true,
+          "tokenize": {
+            "delim": ","
+          }
+        },
+        "https://schema.org/publisher": {
+          "trim": true,
+          "fieldName": "@id"
+        }
+      }
     }
   },
   "solr": {
@@ -49,6 +63,16 @@
             {
               "name": "type",
               "type": "text_general",
+              "stored": true
+            },
+            {
+              "name": "https___schema.org_keywords_facet",
+              "type": "strings",
+              "stored": true
+            },
+            {
+              "name": "https___schema.org_publisher_facet",
+              "type": "string",
               "stored": true
             }
           ]

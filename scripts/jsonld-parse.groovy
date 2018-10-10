@@ -57,6 +57,7 @@ def processEntry(manager, engine, entry, type, useDefaultHandler) {
 		}
 	}
 }
+
 //-------------------------------------------------------
 // Start of Script
 //-------------------------------------------------------
@@ -71,6 +72,7 @@ def jsonStr = JsonOutput.toJson(data)
 def context = [:]
 // document['raw_json_t'] =  jsonStr
 recordTypeConfig = config['recordType'][recordType]
+manager.getBindings().put('recordTypeConfig', recordTypeConfig)
 document['record_type_s'] = recordType
 document["record_format_s"] = recordTypeConfig['format']
 document['_childDocuments_'] = []
@@ -79,7 +81,12 @@ JsonLdOptions options = new JsonLdOptions()
 def compacted = JsonLdProcessor.compact(data, context, options);
 if (compacted['@graph']) {
 	// find the root node of the graph...
-	def rootNode = data['@graph'].find { it.path == 'data/' || it.path == './' }
+	def rootNodeId = recordTypeConfig['rootNodeFieldContextId']
+	def rootNodeVals = recordTypeConfig['rootNodeFieldValues'];
+	logger.info("Using rootNodeId:" + rootNodeId)
+	def rootNode = data['@graph'].find {
+		return it[rootNodeId] instanceof Collection ? rootNodeVals.intersect(it[rootNodeId]).size() > 0 : rootNodeVals.contains(it[rootNodeId]) // it[rootNodeId] == 'data/' || it[rootNodeId]== './'
+	}
 	compacted['@graph'].each { entry ->
 		if (entry['@id'] == rootNode['@id']) {
 			processEntry(manager, engine, entry, 'rootNode', false)
@@ -93,5 +100,5 @@ if (compacted['@graph']) {
 document["date_updated_dt"] = new Date()
 docList << [document: document, core: recordTypeConfig.core]
 logger.info("JSON LD Parsed:")
-logger.info(docList.toString())
+logger.info(JsonOutput.toJson(docList))
 return docList

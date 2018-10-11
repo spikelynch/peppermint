@@ -13,7 +13,7 @@ import groovy.json.*;
 //-------------------------------------------------------
 try {
 	if (initRun) {
-		println "Flattened Child script, init okay."
+		println "Add Person, init okay."
 		return
 	}
 } catch (e) {
@@ -30,15 +30,42 @@ def enforceSolrFieldNames(k) {
 // Start of Script
 //-------------------------------------------------------
 def doc = [:]
+def newDoc = [:]
+def personConfig = config['recordType']['person']
+newDoc['record_type_s'] = personConfig['recordTypeName']
+newDoc["record_format_s"] = personConfig['format']
+newDoc['_childDocuments_'] = []
 
 entry.each { k, v ->
   if (k == '@type') {
     doc['type'] = v
+    newDoc['type'] = v
   } else if (k == '@id') {
     doc['id'] = v
+    newDoc['id'] = v
   } else {
+    newDoc[enforceSolrFieldNames(k)] = v
     doc[enforceSolrFieldNames(k)] = v
+    def solrField = enforceSolrFieldNames(k)
+		def facetConfig = personConfig.facets[k]
+		if (facetConfig) {
+			def vals = null
+			def val = facetConfig.fieldName ? v[facetConfig.fieldName] : v
+			if (facetConfig.tokenize) {
+				vals = val ? val.tokenize(facetConfig.tokenize.delim) : val
+			} else {
+				vals = val
+			}
+			if (facetConfig.trim) {
+				vals =  trim(vals)
+			}
+			def suffix = "_facet"
+			if (facetConfig.field_suffix) {
+				suffix = facetConfig.field_suffix
+			}
+			newDoc["${solrField}${suffix}"] = vals
+		}
   }
 }
-
+docList << [document: newDoc, core: personConfig.core]
 document['_childDocuments_'] << doc

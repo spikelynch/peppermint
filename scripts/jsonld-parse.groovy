@@ -30,6 +30,7 @@ try {
 def processEntry(manager, engine, entry, type, useDefaultHandler) {
 	def script = recordTypeConfig.types[type];
 	manager.getBindings().put('entry', entry)
+	manager.getBindings().put('entryType', type)
 	if (script) {
 		// assumes groovy for now
 		try {
@@ -92,7 +93,13 @@ if (compacted['@graph']) {
 			processEntry(manager, engine, entry, 'rootNode', false)
 		} else {
 			def type = entry['@type']
-			processEntry(manager, engine, entry, type, true)
+			if (type instanceof Collection) {
+				type.each { t ->
+					processEntry(manager, engine, entry, t, true)
+				}
+			} else {
+				processEntry(manager, engine, entry, type, true)
+			}
 		}
 	}
 }

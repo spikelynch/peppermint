@@ -50,6 +50,10 @@ def trim(vals) {
 	}
 	return vals
 }
+
+def enforceSolrFieldNames(k) {
+	return k.replaceAll(/[^a-zA-Z\d_]/, '_')
+}
 //-------------------------------------------------------
 // Start of Script
 //-------------------------------------------------------
@@ -59,11 +63,11 @@ logger.info("Processing root node....")
 logger.info(JsonOutput.toJson(entry))
 entry.each { k, v ->
   if (k == '@type') {
-    document['type_s'] = v
+    document['type'] = v
   } else if (k == '@id') {
     document['id'] = v
   } else {
-		document[k] = v
+		def solrField = enforceSolrFieldNames(k)
 		def facetConfig = recordTypeConfig.facets[k]
 		if (facetConfig) {
 			def vals = null
@@ -80,8 +84,8 @@ entry.each { k, v ->
 			if (facetConfig.field_suffix) {
 				suffix = facetConfig.field_suffix
 			}
-			document["${k}${suffix}"] = vals
+			document["${solrField}${suffix}"] = vals
 		}
-    document[k] = renameIds(v)
+    document[solrField] = renameIds(v)
   }
 }

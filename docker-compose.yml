@@ -28,13 +28,13 @@ services:
     environment:
       - SOLR_HOST=solr
       - SOLR_PORT=8983
-  nginx:
-    image: nginx:1.15-alpine
+  peppermint_portal:
+    image: qcifengineering/peppermint-portal:latest
     ports:
       - "9001:80"
-    volumes:
-      - "../peppermint-portal/build:/usr/share/nginx/html"
-      - "./support/nginx.conf:/etc/nginx/conf.d/default.conf"
+    # Uncomment below for local development
+    # volumes:
+    #   - "../peppermint-portal/build:/usr/share/nginx/html"
   solrcorsproxy:
     image: shakyshane/nginx-cors-plus
     ports:

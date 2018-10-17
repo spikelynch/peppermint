@@ -60,7 +60,7 @@ def enforceSolrFieldNames(k) {
 
 // add to the main document
 logger.info("Processing root node....")
-logger.info(JsonOutput.toJson(entry))
+// logger.info(JsonOutput.toJson(entry))
 entry.each { k, v ->
   if (k == '@type') {
     document['type'] = v

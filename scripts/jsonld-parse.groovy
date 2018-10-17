@@ -106,6 +106,6 @@ if (compacted['@graph']) {
 // document["raw_compacted_t"] = JsonOutput.toJson(compacted)
 document["date_updated_dt"] = new Date()
 docList << [document: document, core: recordTypeConfig.core]
-logger.info("JSON LD Parsed:")
-logger.info(JsonOutput.toJson(docList))
+// logger.info("JSON LD Parsed:")
+// logger.info(JsonOutput.toJson(docList))
 return docList

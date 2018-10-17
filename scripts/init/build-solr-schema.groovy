@@ -35,7 +35,7 @@ def generateCommandStr(commandStr, fieldArr) {
   return fieldStrArr
 }
 
-def replaceExisting(existingFields, mainArr, addArr, replaceArr, forceReplace, matchClosure = null) {
+def replaceExisting(existingFields, mainArr, addArr, replaceArr, forceReplace, matchClosure = null, skipExists) {
   if (!matchClosure) {
     matchClosure = {entry ->
       return {
@@ -52,7 +52,9 @@ def replaceExisting(existingFields, mainArr, addArr, replaceArr, forceReplace, m
       addArr << entry
     } else {
       if (entryExist) {
-        replaceArr << entryExist
+        if (!skipExists) {
+          replaceArr << entry
+        }
       } else {
         addArr << entry;
       }
@@ -81,11 +83,11 @@ def postSchema(core, commandStr) {
   }.post()
 }
 
-def processConfig(core, schemaField, responseFieldName, configArr, addCommandStr, replaceCommandStr, commandStrArr, forceReplace = false, matchClosureFn = null) {
+def processConfig(core, schemaField, responseFieldName, configArr, addCommandStr, replaceCommandStr, commandStrArr, forceReplace = false, matchClosureFn = null, skipExists = false) {
   // replace all existing fields...
   def replaceFieldArr = []
   def addFieldArr = []
-  replaceExisting(getSchema(core, schemaField)[responseFieldName], configArr, addFieldArr, replaceFieldArr, forceReplace, matchClosureFn)
+  replaceExisting(getSchema(core, schemaField)[responseFieldName], configArr, addFieldArr, replaceFieldArr, forceReplace, matchClosureFn, skipExists)
   commandStrArr.addAll(generateCommandStr(replaceCommandStr, replaceFieldArr))
   commandStrArr.addAll(generateCommandStr(addCommandStr, addFieldArr))
 }
@@ -114,7 +116,8 @@ if (config.solr.rebuildSchemaAlways) {
     def addDynamicField = config.solr.schema[core]['add-dynamic-field']
     def addCopyField = config.solr.schema[core]['add-copy-field']
     if (addField && addField.size() > 0) {
-      processConfig(core, 'fields', 'fields', addField, 'add-field', 'replace-field', commandStrArr)
+      // Not replacing existing as fields might have dependent copyFields which will cause an error when replacing/deleting
+      processConfig(core, 'fields', 'fields', addField, 'add-field', 'replace-field', commandStrArr, false, null, true)
     }
     if (addDynamicField && addDynamicField.size() > 0) {
       processConfig(core, 'dynamicfields', 'dynamicFields', addDynamicField, 'add-dynamic-field', 'replace-dynamic-field', commandStrArr)
@@ -125,7 +128,7 @@ if (config.solr.rebuildSchemaAlways) {
           existingEntry.source == configEntry.source && ( configEntry.dest.find { it == existingEntry.dest } )
         }
       }
-      processConfig(core, 'copyfields', 'copyFields', addCopyField, 'add-copy-field', 'delete-copy-field', commandStrArr, true, matchClosureFn)
+      processConfig(core, 'copyfields', 'copyFields', addCopyField, 'add-copy-field', 'delete-copy-field', commandStrArr, false, matchClosureFn, true)
     }
 
     postDataStr = "${postDataStr}${commandStrArr.join(',')}}"

@@ -81,8 +81,8 @@ logger.info "Committing to: ${config.solr.baseUrl}/solr"
 
 scriptOutput.each { v ->
 	def doc = getSolrDoc(v.document)
-	logger.info("Adding SOLR Doc:")
-	logger.info(doc.toString())
+	// logger.info("Adding SOLR Doc:")
+	// logger.info(doc.toString())
   getClient(clients, v.core.toString(), v['format']).add(doc)
   // getClient(clients, v.core.toString(), v['format']).add(v.document)
 };

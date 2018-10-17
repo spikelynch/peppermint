@@ -42,4 +42,4 @@ services:
     links:
       - solr:solr
     environment:
-      - TARGET=http://solr:8983
+      - TARGET=http://solr:8983/solr/dataset/select

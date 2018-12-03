@@ -46,9 +46,9 @@ def renameIds(v) {
 
 def trim(vals) {
 	if (vals instanceof List && vals.size() > 0) {
-		return vals.collect { vals instanceof String ?  it.trim() : it }
+		return vals.collect { it instanceof String ?  it.trim() : it }
 	}
-	return vals
+	return vals instanceof String ? vals.trim() : vals
 }
 
 def enforceSolrFieldNames(k) {

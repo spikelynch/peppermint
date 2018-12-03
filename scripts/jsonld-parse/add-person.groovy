@@ -26,6 +26,13 @@ try {
 def enforceSolrFieldNames(k) {
 	return k.replaceAll(/[^a-zA-Z\d_]/, '_')
 }
+
+def trim(vals) {
+	if (vals instanceof List && vals.size() > 0) {
+		return vals.collect { it instanceof String ?  it.trim() : it }
+	}
+	return vals instanceof String ? vals.trim() : vals
+}
 //-------------------------------------------------------
 // Start of Script
 //-------------------------------------------------------

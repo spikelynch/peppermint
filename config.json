@@ -4,7 +4,8 @@
   "scriptSubDir": "scripts",
   "init": {
     "scripts": [
-      "init/build-solr-schema.groovy"
+      "init/build-solr-schema.groovy",
+      "init/init-oaipmh.groovy"
     ]
   },
   "routes": [
@@ -25,17 +26,18 @@
       "rootNodeFieldValues": ["data/", "./"],
       "types": {
         "rootNode": [
-          "scripts/jsonld-parse/addRootDataset.groovy"
+          "scripts/jsonld-parse/add-root-dataset.groovy",
+          "scripts/jsonld-parse/add-oaipmh.groovy"
         ],
         "https://schema.org/Person": [
-          "scripts/jsonld-parse/addPerson.groovy"
+          "scripts/jsonld-parse/add-person.groovy"
         ],
         "http://schema.org/GeoCoordinates": [
-          "scripts/jsonld-parse/addFlattenedChild.groovy",
+          "scripts/jsonld-parse/add-flattened-child.groovy",
           "scripts/jsonld-parse/geojson.groovy"
         ]
       },
-      "defaultHandlerScript": "scripts/jsonld-parse/addFlattenedChild.groovy",
+      "defaultHandlerScript": "scripts/jsonld-parse/add-flattened-child.groovy",
       "facets": {
         "https://schema.org/keywords": {
           "trim": true,
@@ -48,15 +50,22 @@
           "trim": true,
           "fieldName": "@id"
         }
+      },
+      "oai-pmh": {
+        "core": "dataset",
+        "set": "datasource:ReDBox"
       }
     },
     "person": {
       "core": "dataset",
       "format": "jsonld",
       "recordTypeName": "person",
-      "defaultHandlerScript": "scripts/jsonld-parse/addFlattenedChild.groovy",
+      "defaultHandlerScript": "scripts/jsonld-parse/add-flattened-child.groovy",
       "facets": {
         "https://schema.org/birthPlace": {
+          "trim": true
+        },
+        "https://schema.org/birthDate": {
           "trim": true
         }
       }
@@ -67,64 +76,102 @@
     "cores": ["dataset"],
     "rebuildSchemaAlways": true,
     "schema": {
-        "dataset": {
-          "add-field": [
-            {
-              "name": "name",
-              "type": "text_general",
-              "stored": true
-            },
-            {
-              "name": "type",
-              "type": "text_general",
-              "stored": true,
-              "multiValued": true
-            },
-            {
-              "name": "main_search",
-              "type": "text_en",
-              "stored": true,
-              "multiValued": true
-            }
-          ],
-          "add-dynamic-field": [
-            {
-              "name": "*_name",
-              "type": "text_en",
-              "stored": true
-            },
-            {
-              "name": "*_description",
-              "type": "text_en",
-              "stored": true
-            },
-            {
-              "name": "*_birthDate",
-              "type": "text_en",
-              "stored": true
-            },
-            {
-              "name": "*_facet_multi",
-              "type": "strings",
-              "stored": true,
-            },
-            {
-              "name": "*_facet",
-              "type": "string",
-              "stored": true
-            }
-          ],
-          "add-copy-field": [
-            {
-              "source": "https___schema_org_name",
-              "dest": ["main_search"]
-            },
-            {
-              "source": "https___schema_org_description",
-              "dest": ["main_search"]
-            }
-          ]
-        }
+      "dataset": {
+        "add-field": [
+          {
+            "name": "name",
+            "type": "text_general",
+            "stored": true
+          },
+          {
+            "name": "type",
+            "type": "text_general",
+            "stored": true,
+            "multiValued": true
+          },
+          {
+            "name": "main_search",
+            "type": "text_en",
+            "stored": true,
+            "multiValued": true
+          }
+        ],
+        "add-dynamic-field": [
+          {
+            "name": "*_name",
+            "type": "text_en",
+            "stored": true
+          },
+          {
+            "name": "*_description",
+            "type": "text_en",
+            "stored": true
+          },
+          {
+            "name": "*_birthDate",
+            "type": "text_en",
+            "stored": true
+          },
+          {
+            "name": "*_facet_multi",
+            "type": "strings",
+            "stored": true,
+          },
+          {
+            "name": "*_facet",
+            "type": "string",
+            "stored": true
+          }
+        ],
+        "add-copy-field": [
+          {
+            "source": "https___schema_org_name",
+            "dest": ["main_search"]
+          },
+          {
+            "source": "https___schema_org_description",
+            "dest": ["main_search"]
+          }
+        ]
+      }
+    },
+    "oaipmh": {
+      "reuseCore": true,
+      "dataset": {
+        "init": [
+          {
+            "recordType": "oaipmh_identity",
+            "xml": "<Identify><repositoryName>ReDBox Peppermint OAI-PMH Repository</repositoryName><baseUrl>http://redboxresearchdata.com.au</baseUrl><protocolVersion>2.0</protocolVersion><earliestDatestamp>2010-01-12T05:03:58Z</earliestDatestamp><deletedRecord>transient</deletedRecord><granularity>YYYY-MM-DDThh:mm:ssZ</granularity><adminEmail>support@redboxresearchdata.com.au</adminEmail></Identify>"
+          },
+          {
+            "recordType": "oaipmh_metadataformat",
+             "entries": [
+               {
+                 "id": "oaipmh_metadataformat_oaidc",
+                 "prefix_s": "oai_dc",
+                 "schema_s": "http://www.openarchives.org/OAI/2.0/oai_dc.xsd",
+                 "metadataNamespace_s": "http://www.openarchives.org/OAI/2.0/oai_dc/"
+               },
+               {
+                 "id": "oaipmh_metadataformat_rif",
+                 "prefix_s": "rif",
+                 "schema_s": "http://services.ands.org.au/documentation/rifcs/1.3/schema/registryObjects.xsd",
+                 "metadataNamespace_s": "http://ands.org.au/standards/rif-cs/registryObjects"
+               }
+             ]
+          },
+          {
+            "recordType": "oaipmh_setspec",
+            "entries": [
+              {
+                "id": "oaipmh_setspec_redbox",
+                "setSpec_s": "datasource:ReDBox",
+                "setName_s": "ReDBox Peppermint Repository"
+              }
+            ]
+          }
+        ]
+      }
     }
   }
 }

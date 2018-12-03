@@ -1,6 +1,22 @@
-# Peppermint
+# Peppermint [![Build Status](https://travis-ci.org/redbox-mint/peppermint.svg?branch=master)](https://travis-ci.org/redbox-mint/peppermint)
 
-JSON data transformer for [ReDBox](http://redboxresearchdata.com.au/), etc.
+JSON data transformer for [ReDBox](http://redboxresearchdata.com.au/), and others.
+
+## Architecture
+```
+                                                      +-------------------+
+                                                      |                   |
+                                                      | Peppermint Portal |
+                                                      |                   |
+                                                      +--------+----------+
+                                                               |
+                                                               |
++---------------------+         +--------------+      +--------v----------+
+|                     |         |              |      |                   |
+| Source(s) of Truth  +--------->  Peppermint  +------>    Search Index   |
+|                     |         |              |      |      (SOLR)       |
++---------------------+         +--------------+      +-------------------+
+```
 
 ## Requirements
 
@@ -16,9 +32,9 @@ JSON data transformer for [ReDBox](http://redboxresearchdata.com.au/), etc.
 
 ### Via manual run
 
-Build, the project (see below), then run command from project directory: `java -cp <path to groovy installation>/lib/*:./build/libs/peppermint-fat.jar io.vertx.core.Launcher`
-
+- Build, the project (see below), then run command from project directory: `java -cp <path to groovy installation>/lib/*:./build/libs/peppermint-fat.jar io.vertx.core.Launcher`
+- App is pre-configured to use a SOLR instance available on the `localhost:8983`.
 
 
 ## Building
-Run command: ` ./gradlew shadowJar`
+- Run command: ` ./gradlew shadowJar`

@@ -43,3 +43,18 @@ services:
       - solr:solr
     environment:
       - TARGET=http://solr:8983/solr/dataset/select
+  proai:
+    image: qcifengineering/proai-solr-driver:latest
+    links:
+      - postgres:postgres
+      - solr:solr
+    ports:
+      - "9000:8080"
+  postgres:
+    image: postgres:11.1-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=proai
+      - POSTGRES_PASSWORD=proai
+      - POSTGRES_DB=proai

@@ -41,7 +41,7 @@
       "facets": {
         "https://schema.org/keywords": {
           "trim": true,
-          "field_suffix": "_facet_multi",
+          "field_suffix": "facet_multi",
           "tokenize": {
             "delim": ","
           }
@@ -49,6 +49,12 @@
         "https://schema.org/publisher": {
           "trim": true,
           "fieldName": "@id"
+        },
+        "@type": {
+          "trim": true,
+          "field_suffix": "facet_multi",
+          "skip_entry_type_suffix": true,
+          "escape_value": "solr_field"
         }
       },
       "oai-pmh": {
@@ -67,6 +73,12 @@
         },
         "https://schema.org/birthDate": {
           "trim": true
+        },
+        "@type": {
+          "trim": true,
+          "field_suffix": "facet_multi",
+          "skip_entry_type_suffix": true,
+          "escape_value": "solr_field"
         }
       }
     }
@@ -118,7 +130,7 @@
             "stored": true,
           },
           {
-            "name": "*_facet",
+            "name": "*_facet_single",
             "type": "string",
             "stored": true
           }

@@ -56,7 +56,7 @@ def getSolrDoc(doc) {
 				solrDoc.addChildDocument(getSolrDoc(c))
 			}
 		} else {
-			if (v instanceof List) {
+			if (v instanceof List || v instanceof Collection || v instanceof ArrayList) {
 				v.each {
 					solrDoc.addField(k, translateValue(it))
 				}

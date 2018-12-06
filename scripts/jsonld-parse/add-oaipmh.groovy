@@ -170,6 +170,26 @@ def getRifDoc(mainDoc) {
 	rifDoc['xml_s'] = stringw.toString()
 	return rifDoc
 }
+
+def getOaipmhDoc(docList, core) {
+	def metadoc = null
+	docList.each { d ->
+		if (d.document.id == "oaipmh_meta") {
+			metadoc = d
+		}
+	}
+	if (!metadoc) {
+		metadoc = [id:"oaipmh_meta"]
+		docList << [document: metadoc, core: core]
+	}
+	return metadoc
+}
+
+def updateOaipmhLatest(doc) {
+	if (doc) {
+		doc['latest_dt'] = new Date()
+	}
+}
 //-------------------------------------------------------
 // Start of Script
 //-------------------------------------------------------
@@ -179,8 +199,11 @@ logger.info("Creating OAIPMH document(s)...")
 // logger.info(JsonOutput.toJson(entry))
 //
 def recordTypeConfig = config['recordType'][recordType]
+
 // use the mapped document to simplify traversing the map
 def oaidcDoc = getDcDoc(document)
 def rifDoc = getRifDoc(document)
+def oaipmhMetaDoc = getOaipmhDoc(docList, recordTypeConfig['oai-pmh'].core)
+updateOaipmhLatest(oaipmhMetaDoc)
 docList << [document: oaidcDoc, core: recordTypeConfig['oai-pmh'].core]
 docList << [document: rifDoc, core: recordTypeConfig['oai-pmh'].core]

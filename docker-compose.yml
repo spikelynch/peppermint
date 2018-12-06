@@ -7,8 +7,9 @@ services:
     expose:
       - "8983"
     volumes:
+      # When mounting update the code below to where you want to save your SOLR data
       # Please do before: sudo chown 8983:8983 /mnt/data/solr
-      - "/mnt/data/solr:/opt/solr/server/solr/mycores"
+      # - "/mnt/data/solr:/opt/solr/server/solr/mycores"
     entrypoint:
       - docker-entrypoint.sh
       - solr-precreate
@@ -21,10 +22,11 @@ services:
       - "8080"
     links:
       - solr:solr
-    volumes:
-      - "./scripts:/opt/peppermint/scripts"
-      - "./config.json:/opt/peppermint/config.json"
-      - "./build/libs/peppermint-fat.jar:/opt/peppermint/build/libs/peppermint-fat.jar"
+    # Uncomment volume def below for local development
+    # volumes:
+    #   - "./scripts:/opt/peppermint/scripts"
+    #   - "./config.json:/opt/peppermint/config.json"
+    #   - "./build/libs/peppermint-fat.jar:/opt/peppermint/build/libs/peppermint-fat.jar"
     environment:
       - SOLR_HOST=solr
       - SOLR_PORT=8983
@@ -50,6 +52,10 @@ services:
       - solr:solr
     ports:
       - "9000:8080"
+    # Uncomment volume def below for local development
+    # volumes:
+    #   - "../proai-solr-driver/proai.properties:/var/lib/jetty/webapps/ROOT/WEB-INF/classes/proai.properties"
+    #   - "../proai-solr-driver/build/libs/proai-solr-driver-fat.jar:/var/lib/jetty/webapps/ROOT/WEB-INF/lib/proai-solr-driver-fat.jar"
   postgres:
     image: postgres:11.1-alpine
     ports:

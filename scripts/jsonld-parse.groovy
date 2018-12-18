@@ -59,6 +59,13 @@ def processEntry(manager, engine, entry, type, useDefaultHandler) {
 	}
 }
 
+def ensureSchemaOrgHttps(data) {
+	def newContext = [:]
+	data['@context'].each {key, val ->
+		newContext[key] = val.replaceAll('http://schema.org', 'https://schema.org')
+	}
+	data['@context'] = newContext
+}
 //-------------------------------------------------------
 // Start of Script
 //-------------------------------------------------------
@@ -67,7 +74,7 @@ def document = [:]
 // put the document list
 manager.getBindings().put('docList', docList)
 manager.getBindings().put('document', document)
-
+ensureSchemaOrgHttps(data)
 def slurper = new JsonSlurper()
 def jsonStr = JsonOutput.toJson(data)
 def context = [:]

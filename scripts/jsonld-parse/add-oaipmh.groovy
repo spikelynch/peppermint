@@ -79,50 +79,11 @@ def getDcDoc(mainDoc) {
 	  }
 	}
 	oaidcDoc['xml_s'] = stringw.toString()
-
-	// oaidcDoc['xml_s'] = """
-	// <record xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
-	// <header>
-	// <identifier>${mainDoc['id']}</identifier>
-	// <datestamp>${nowStamp}</datestamp>
-	// <setSpec>${recordTypeConfig['oai-pmh'].set}</setSpec>
-	// </header>
-	// <metadata>
-	// <oai_dc:dc>
-	// <dc:identifier>${mainDoc['id']}</dc:identifier>
-	// <dc:title>${mainDoc['https___schema_org_name']}</dc:title>
-	// <dc:creator>${}</dc:creator>
-	// <dc:description>Photograph of Idan-ha Hotel, Soda Springs, Idaho.</dc:description>
-	// <dc:source>C.R. Savage</dc:source>
-	// <dc:date>ca. 1890</dc:date>
-	// <dc:date>1890;</dc:date>
-	// <dc:publisher>Brigham Young University</dc:publisher>
-	// <dc:description>15.2 x 20.4 cm. (6 x 8 in.)</dc:description>
-	// <dc:source>Intellectual Reserve, Inc.</dc:source>
-	// <dc:subject>Soda Springs (Idaho);</dc:subject>
-	// <dc:subject>Idan-ha Hotel (Soda Springs, Idaho);</dc:subject>
-	// <dc:subject>Soda Springs (Idaho); Idan-ha Hotel (Soda Springs, Idaho);</dc:subject>
-	// <dc:subject>Idaho, Caribou, Soda Springs;</dc:subject>
-	// <dc:subject>Photographs;</dc:subject>
-	// <dc:relation>Charles R. Savage Photograph Collection</dc:relation>
-	// <dc:rights>http://lib.byu.edu/about/copyright/church_history.php</dc:rights>
-	// <dc:rights>Public Domain; Courtesy Church History Collections, The Church of Jesus Christ of Latter-day Saints and Intellectual Reserve, Inc.</dc:rights>
-	// <dc:rights>Public</dc:rights>
-	// <dc:type>Image</dc:type>
-	// <dc:format>Image/j2k</dc:format>
-	// <dc:identifier>PH500_fd49_item-7.jpg</dc:identifier>
-	// <dc:coverage>42.658680 -111.603077</dc:coverage>
-	// <dc:coverage>16 Street;</dc:coverage>
-	// <dc:identifier>http://cdm15999.contentdm.oclc.org/cdm/ref/collection/Savage2/id/255</dc:identifier>
-	// </oai_dc:dc>
-	// </metadata>
-	// </record>
-	// """
 	return oaidcDoc
 }
 
 def getFirstElem(arr) {
-	return arr instanceof List && arr.size() > 0 ? arr[0] : arr
+	return arr && arr instanceof List && arr.size() > 0 ? arr[0] : arr
 }
 
 def getRifDoc(mainDoc) {
@@ -133,10 +94,13 @@ def getRifDoc(mainDoc) {
 
 	def nowStamp = new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone("UTC")) 	// now build the DC string...
 	def stringw = new StringWriter()
+	def mainDocId = mainDoc['id']
+	def publisherProperty = 'https___schema_org_publisher'
+	def publisherId = getFirstElem(mainDoc[publisherProperty])['id']
 	new MarkupBuilder(stringw).with { mb ->
 		record() {
 		  header {
-				identifier(mainDoc['id'])
+				identifier(mainDocId)
 				datestamp(nowStamp)
 				setSpec(recordTypeConfig['oai-pmh'].set)
 			}
@@ -145,15 +109,15 @@ def getRifDoc(mainDoc) {
 					'xmlns':"http://ands.org.au/standards/rif-cs/registryObjects",
 					'xmlns:xsi':"http://www.w3.org/2001/XMLSchema-instance",
 					'xsi:schemaLocation':"http://ands.org.au/standards/rif-cs/registryObjects http://services.ands.org.au/documentation/rifcs/schema/registryObjects.xsd") {
-					registryObject(group: getFirstElem(mainDoc['https___schema_org_publisher']['id'])) {
-						key(mainDoc['id'])
-						originatingSource(mainDoc['id'])
+					registryObject(group: publisherId) {
+						key(mainDocId)
+						originatingSource(mainDocId)
 						collection(type: "dataset") {
 							name(type: "primary") {
 								namePart(mainDoc['https___schema_org_name'])
 							}
 							description(type:"full", mainDoc['https___schema_org_description'])
-							identifier(type: "local", mainDoc['id'])
+							identifier(type: "local", mainDocId)
 							location {
 								address {
 									electronic(type: "url") {
@@ -174,7 +138,7 @@ def getRifDoc(mainDoc) {
 def getOaipmhDoc(docList, core) {
 	def metadoc = null
 	docList.each { d ->
-		if (d.document.id == "oaipmh_meta") {
+		if (d.document != null && d.document.id == "oaipmh_meta") {
 			metadoc = d
 		}
 	}

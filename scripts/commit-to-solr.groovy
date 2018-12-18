@@ -36,7 +36,7 @@ try {
 // Start of Script
 //-------------------------------------------------------
 def getClient(clients, core, format) {
-	def clientId = "${core}_${format ? '?format='+format : ''}"
+	def clientId = "${core}${format ? '_?format='+format : ''}"
 	if (clients[clientId]) {
 		return clients[clientId]
 	}

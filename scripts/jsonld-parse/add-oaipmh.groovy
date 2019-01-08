@@ -19,35 +19,11 @@ try {
 	// swallowing
 }
 
+evaluate(new File('scripts/jsonld-parse/utils.groovy'))
+
 //-------------------------------------------------------
 // Script Fns
 //-------------------------------------------------------
-def renameIds(v) {
-  if (v instanceof Map) {
-    def remapped = [:]
-    v.each { k, val ->
-      if (k == '@id') {
-        remapped['id'] = val
-      } else {
-        remapped[k] = renameIds(val)
-      }
-    }
-    return remapped
-  } else {
-    return v
-  }
-}
-
-def trim(vals) {
-	if (vals instanceof List && vals.size() > 0) {
-		return vals.collect { it instanceof String ?  it.trim() : it }
-	}
-	return vals instanceof String ? vals.trim() : vals
-}
-
-def enforceSolrFieldNames(k) {
-	return k.replaceAll(/[^a-zA-Z\d_]/, '_')
-}
 
 def getDcDoc(mainDoc) {
 	def oaidcDoc = [:]

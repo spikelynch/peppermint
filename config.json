@@ -39,6 +39,9 @@
       },
       "defaultHandlerScript": "scripts/jsonld-parse/add-flattened-child.groovy",
       "facets": {
+        "https://schema.org/datePublished": {
+          "trim": true
+        },
         "https://schema.org/keywords": {
           "trim": true,
           "field_suffix": "facet_multi",
@@ -97,9 +100,8 @@
           },
           {
             "name": "type",
-            "type": "text_general",
-            "stored": true,
-            "multiValued": true
+            "type": "strings",
+            "stored": true
           },
           {
             "name": "main_search",
@@ -142,6 +144,10 @@
           },
           {
             "source": "https___schema_org_description",
+            "dest": ["main_search"]
+          },
+          {
+            "source": "id",
             "dest": ["main_search"]
           }
         ]

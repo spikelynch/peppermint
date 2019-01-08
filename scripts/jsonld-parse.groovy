@@ -28,6 +28,9 @@ try {
 //-------------------------------------------------------
 
 def processEntry(manager, engine, entry, type, useDefaultHandler) {
+	def sw = new StringWriter()
+	def pw = new PrintWriter(sw, true)
+
 	def script = recordTypeConfig.types[type];
 	manager.getBindings().put('entry', entry)
 	manager.getBindings().put('entryType', type)
@@ -40,10 +43,11 @@ def processEntry(manager, engine, entry, type, useDefaultHandler) {
 		} catch (e) {
 			logger.error("Failed to run: ${script}");
 			logger.error(e)
+			throw e
 		}
 	} else {
 		if (useDefaultHandler) {
-			logger.info("No script configured for: ${entry['@id']} with type: ${type}, running default handler if configured, ignoring if not.");
+			logger.info("No script configured for type: ${type}, running default handler if configured, ignoring if not.");
 			script = recordTypeConfig['defaultHandlerScript']
 			if (script) {
 				try {
@@ -51,6 +55,10 @@ def processEntry(manager, engine, entry, type, useDefaultHandler) {
 				} catch (e) {
 					logger.error("Failed to run: ${script}");
 					logger.error(e)
+					e.printStackTrace(pw)
+					logger.error("Stack trace:  ")
+					logger.error(sw.toString())
+					throw e
 				}
 			}
 		} else {

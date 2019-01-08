@@ -20,25 +20,20 @@ try {
 	// swallowing
 }
 
+evaluate(new File('scripts/jsonld-parse/utils.groovy'))
+
 //-------------------------------------------------------
 // Script Fns
 //-------------------------------------------------------
-def enforceSolrFieldNames(k) {
-	return k.replaceAll(/[^a-zA-Z\d_]/, '_')
-}
+
 //-------------------------------------------------------
 // Start of Script
 //-------------------------------------------------------
 def doc = [:]
+def entryTypeFieldName = enforceSolrFieldNames(entryType)
 
 entry.each { k, v ->
-  if (k == '@type') {
-    doc['type'] = v
-  } else if (k == '@id') {
-    doc['id'] = v
-  } else {
-    doc[enforceSolrFieldNames(k)] = v
-  }
+	addKvAndFacetsToDocument(k, v, [doc], doc, recordTypeConfig, entryTypeFieldName)
 }
 
 document['_childDocuments_'] << doc

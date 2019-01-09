@@ -101,16 +101,50 @@ def deleteIndexData(core) {
   }.get()
 }
 
+def checkSolr() {
+  def uri = "${config.solr.baseUrl}/solr/admin/cores?action=STATUS"
+  return configure {
+    request.uri = uri
+    request.contentType = "application/json"
+  }.get()
+}
+
+def waitForSolr() {
+  def solrUp = false;
+  def maxTries = 5;
+  def waitTime = 5000;
+  def tryCtr = 0;
+  while (!solrUp && tryCtr <= maxTries ) {
+    try {
+      tryCtr++
+      logger.info("Checking if solr is up...${tryCtr}");
+      logger.info(checkSolr())
+      logger.info("Solr is up!")
+      solrUp = true
+    } catch (e) {
+      logger.error(e)
+      logger.info("SOLR still down.. waiting.")
+      sleep(waitTime)
+    }
+  }
+}
+
 //-------------------------------------------------------
 // Start of Script
 //-------------------------------------------------------
 
 logger.info("SOLR schema builder starting...")
 if (config.solr.rebuildSchemaAlways) {
+  waitForSolr()
   logger.info("Rebuilding schema...deleting all existing data for each core.")
   def postDataStr = "{"
   config.solr.cores.each { core ->
-    deleteIndexData(core)
+    try {
+      deleteIndexData(core)
+    } catch(e) {
+      logger.error(e)
+      logger.error("Error deleting data in core: ${core}, ignoring ,as the core may not exist.")
+    }
     def commandStrArr = []
     def addField = config.solr.schema[core]['add-field']
     def addDynamicField = config.solr.schema[core]['add-dynamic-field']

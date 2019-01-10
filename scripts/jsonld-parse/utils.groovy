@@ -40,16 +40,17 @@ addKvToDocument = { solrField, k, v, document ->
 addKvAndFacetsToDocument = {k, v, docs, facetDoc, recordTypeConfig, entryTypeFieldName ->
   def solrField = enforceSolrFieldNames(k)
   if (k == '@type') {
-    docs.each {
-      it['type'] = v
-      def typeVal = v
-      if (v instanceof List) {
-        // select the last one...
-        typeVal = v[v.length-1]
-      }
-      // select the type label as the last one...
-      def vparts = typeVal.split('/')
-      it['type_label'] = vparts[vparts.length - 1]
+    def typeVal = v
+    if (v instanceof java.util.ArrayList) {
+      // select the last one...
+      typeVal = v[v.size()-1]
+    }
+    // select the type label as the last one...
+    def vparts = typeVal.split('/')
+    def typeLabel  = vparts[vparts.length - 1]
+    docs.each { doc ->
+      doc['type'] = v
+      doc['type_label'] = typeLabel;
     }
 		solrField = 'type'
   } else if (k == '@id') {

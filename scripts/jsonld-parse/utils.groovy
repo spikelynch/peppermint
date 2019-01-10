@@ -42,7 +42,13 @@ addKvAndFacetsToDocument = {k, v, docs, facetDoc, recordTypeConfig, entryTypeFie
   if (k == '@type') {
     docs.each {
       it['type'] = v
-      def vparts = v.split('/')
+      def typeVal = v
+      if (v instanceof List) {
+        // select the last one...
+        typeVal = v[v.length-1]
+      }
+      // select the type label as the last one...
+      def vparts = typeVal.split('/')
       it['type_label'] = vparts[vparts.length - 1]
     }
 		solrField = 'type'

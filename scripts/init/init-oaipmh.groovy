@@ -85,13 +85,16 @@ def getInitOaiRecords(coreName) {
 def clients = [:]
 
 logger.info "Preparing OAI-PMH SOLR repo in: ${config.solr.baseUrl}/solr"
-
 if (config.solr.oaipmh.reuseCore) {
   config.solr.cores.each { core ->
-    def client = getClient(clients, core)
-		// loop through and get all the init records
-		getInitOaiRecords(core).each { rec ->
-			client.add(rec)
+		try {
+	    def client = getClient(clients, core)
+			// loop through and get all the init records
+			getInitOaiRecords(core).each { rec ->
+				client.add(rec)
+			}
+		} catch (err) {
+			logger.info "Error initing OAIPMH record."
 		}
   }
 }

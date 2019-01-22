@@ -147,7 +147,7 @@
             "stored": true,
           },
           {
-            "name": "*_facet_single",
+            "name": "*_facet",
             "type": "string",
             "stored": true
           }

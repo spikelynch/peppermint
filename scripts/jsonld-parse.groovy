@@ -47,7 +47,7 @@ def processEntry(manager, engine, entry, type, useDefaultHandler) {
 		}
 	} else {
 		if (useDefaultHandler) {
-			logger.info("No script configured for type: ${type}, running default handler if configured, ignoring if not.");
+			logger.debug("No script configured for type: ${type}, running default handler if configured, ignoring if not.");
 			script = recordTypeConfig['defaultHandlerScript']
 			if (script) {
 				try {

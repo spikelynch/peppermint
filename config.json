@@ -122,6 +122,21 @@
             "stored": true
           },
           {
+            "name": "*_date",
+            "type": "text_en",
+            "stored": true
+          },
+          {
+            "name": "*_datePublished",
+            "type": "text_en",
+            "stored": true
+          },
+          {
+            "name": "*_dateCreated",
+            "type": "text_en",
+            "stored": true
+          },
+          {
             "name": "*_birthDate",
             "type": "text_en",
             "stored": true

@@ -39,5 +39,5 @@ def entryTypeFieldName = enforceSolrFieldNames(entryType)
 entry.each { k, v ->
 	addKvAndFacetsToDocument(k, v, [doc, newDoc], newDoc, personConfig, entryTypeFieldName)
 }
-docList << [document: newDoc, core: personConfig.core]
+// docList << [document: newDoc, core: personConfig.core]
 document['_childDocuments_'] << doc

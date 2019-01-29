@@ -39,5 +39,5 @@ logger.info("Processing root node....")
 // logger.info(JsonOutput.toJson(entry))
 def entryTypeFieldName = enforceSolrFieldNames("https://schema.org/Dataset")
 entry.each { k, v ->
-	addKvAndFacetsToDocument(k, v, [document], document, recordTypeConfig, entryTypeFieldName)
+	addKvAndFacetsToDocument(data, k, v, [document], document, recordTypeConfig, entryTypeFieldName)
 }

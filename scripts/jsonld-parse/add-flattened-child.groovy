@@ -33,7 +33,7 @@ def doc = [:]
 def entryTypeFieldName = enforceSolrFieldNames(entryType)
 
 entry.each { k, v ->
-	addKvAndFacetsToDocument(k, v, [doc], doc, recordTypeConfig, entryTypeFieldName)
+	addKvAndFacetsToDocument(data, k, v, [doc], doc, recordTypeConfig, entryTypeFieldName)
 }
 
 document['_childDocuments_'] << doc

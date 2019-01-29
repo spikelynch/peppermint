@@ -1,3 +1,5 @@
+import groovy.json.*
+
 renameIds = { v ->
   if (v instanceof Map) {
     def remapped = [:]
@@ -25,6 +27,10 @@ enforceSolrFieldNames = { k ->
 	return k.replaceAll(/[^a-zA-Z\d_]/, '_')
 }
 
+ensureValidId = { val ->
+  return val.replaceAll(/\s/, '_')
+}
+
 addKvToDocument = { solrField, k, v, document ->
   if (k == '@type') {
     document['type'] = v
@@ -37,7 +43,14 @@ addKvToDocument = { solrField, k, v, document ->
 	}
 }
 
-addKvAndFacetsToDocument = {k, v, docs, facetDoc, recordTypeConfig, entryTypeFieldName ->
+getGraphEntry = { data, id ->
+  return data['@graph'].find { entry ->
+    entry['@id'] == id
+  }
+}
+
+addKvAndFacetsToDocument = {data, k, v, docs, facetDoc, recordTypeConfig, entryTypeFieldName ->
+  def slurper = new JsonSlurper()
   def solrField = enforceSolrFieldNames(k)
   if (k == '@type') {
     def typeVal = v
@@ -54,10 +67,42 @@ addKvAndFacetsToDocument = {k, v, docs, facetDoc, recordTypeConfig, entryTypeFie
     }
 		solrField = 'type'
   } else if (k == '@id') {
-    docs.each { it['id'] = v }
+    docs.each { doc ->
+      doc['id'] = v
+    }
 		solrField = 'id'
   } else {
-    docs.each { it[solrField] = renameIds(v) }
+    if (v instanceof Map || v instanceof List) {
+      def expanded = null
+      if (v instanceof Map && v['@id']) {
+        expanded = getGraphEntry(data, v['@id'])
+        docs.each { doc ->
+          if (expanded) {
+            doc[solrField] = v << expanded
+          } else {
+            doc[solrField] = renameIds(v)
+          }
+        }
+      } else {
+        v.each {vEntry ->
+          if (vEntry instanceof Map && vEntry['@id']) {
+            expanded = getGraphEntry(data, vEntry['@id'])
+            if (expanded && expanded instanceof Map) {
+              vEntry << expanded
+            } else if (expanded instanceof String) {
+              vEntry << slurper.parseText(expanded)
+            }
+          }
+        }
+        docs.each { doc ->
+          doc[solrField] = renameIds(v)
+        }
+      }
+    } else {
+      docs.each { doc ->
+        doc[solrField] = renameIds(v)
+      }
+    }
 	}
 
   def facetConfig = recordTypeConfig.facets[k]

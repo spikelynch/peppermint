@@ -37,7 +37,7 @@ newDoc["record_format_s"] = personConfig['format']
 newDoc['_childDocuments_'] = []
 def entryTypeFieldName = enforceSolrFieldNames(entryType)
 entry.each { k, v ->
-	addKvAndFacetsToDocument(k, v, [doc, newDoc], newDoc, personConfig, entryTypeFieldName)
+	addKvAndFacetsToDocument(data, k, v, [doc, newDoc], newDoc, personConfig, entryTypeFieldName)
 }
 // docList << [document: newDoc, core: personConfig.core]
 document['_childDocuments_'] << doc

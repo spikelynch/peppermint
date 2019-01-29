@@ -74,6 +74,35 @@ def ensureSchemaOrgHttps(data) {
 	}
 	data['@context'] = newContext
 }
+
+boolean isCollectionOrArray(object) {
+    [Collection, Object[]].any { it.isAssignableFrom(object.getClass()) }
+}
+
+def ensureIdsAreCleanAndShinyAndNiceAndWonderful(data) {
+	def modified = []
+	data.eachWithIndex {entry, idx ->
+		def modEntry = [:]
+		if (entry instanceof Map) {
+			entry.each {key, val ->
+				if (key == '@id') {
+					modEntry['id_orig'] = val
+					modEntry['@id'] = val.replaceAll(/\s/, '_')
+				} else
+				if (isCollectionOrArray(val)) {
+					modEntry[key] = ensureIdsAreCleanAndShinyAndNiceAndWonderful(val)
+				} else {
+					modEntry[key] = val
+				}
+			}
+		} else {
+			modEntry = entry
+		}
+
+		modified[idx] = modEntry
+	}
+	return modified
+}
 //-------------------------------------------------------
 // Start of Script
 //-------------------------------------------------------
@@ -83,8 +112,11 @@ def document = [:]
 manager.getBindings().put('docList', docList)
 manager.getBindings().put('document', document)
 ensureSchemaOrgHttps(data)
+data['@graph'] = ensureIdsAreCleanAndShinyAndNiceAndWonderful(data['@graph'])
+
+
 def slurper = new JsonSlurper()
-def jsonStr = JsonOutput.toJson(data)
+// def jsonStr = JsonOutput.toJson(data['@graph'])
 def context = [:]
 // document['raw_json_t'] =  jsonStr
 recordTypeConfig = config['recordType'][recordType]
@@ -121,6 +153,4 @@ if (compacted['@graph']) {
 // document["raw_compacted_t"] = JsonOutput.toJson(compacted)
 document["date_updated_dt"] = new Date()
 docList << [document: document, core: recordTypeConfig.core]
-// logger.info("JSON LD Parsed:")
-// logger.info(JsonOutput.toJson(docList))
 return docList

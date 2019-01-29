@@ -9,6 +9,7 @@ import java.nio.file.*;
 import peppermint.*;
 import javax.script.*;
 import java.util.regex.*
+import java.io.*;
 
 def getEngineName(scriptPath) {
 	if (scriptPath.endsWith('groovy')) {
@@ -128,12 +129,17 @@ config.routes.each { routeConfig ->
 					logger.error("Please check your configuration.")
 				}
 				def success = true
+				def sw = new StringWriter()
+				def pw = new PrintWriter(sw, true)
 				try {
+
 					def scriptOutput = engine.eval(new FileReader(scriptPath))
 					binding.put("scriptOutput", scriptOutput)
 				} catch (e) {
 					logger.error("Error running script for record type: ${recType}: ${scriptPath}")
-					logger.error(e)
+					e.printStackTrace(pw)
+					logger.error("Stack trace:  ")
+					logger.error(sw.toString())
 					success = false
 				}
 				outputEntry.scripts[scriptPathObj.getFileName()] = [success: success]

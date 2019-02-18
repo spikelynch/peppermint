@@ -64,3 +64,14 @@ services:
       - POSTGRES_USER=proai
       - POSTGRES_PASSWORD=proai
       - POSTGRES_DB=proai
+  # Comment out below if you want to harvest Datacrates into Peppermint
+  # peppermint_runner:
+  #   image: qcifengineering/peppermint-runner:latest
+  #   links:
+  #     - peppermint:peppermint
+  #   environment:
+  #     - RUN_AS_CRON=false
+  #   volumes:
+  #     - "../peppermint-runner/config.docker.json:/opt/peppermint-runner/config.json"
+  #     # Modify the ff. to point to your Datacrate directory
+  #     - "/mnt/data/publication/public/:/mnt/data/publication/public/"

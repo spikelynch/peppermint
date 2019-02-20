@@ -66,13 +66,26 @@ def getRifDoc(mainDoc) {
 	def rifDoc = [:]
 	rifDoc['record_type_s'] = "oaipmh_record"
 	rifDoc['metadataSchema_s'] = 'rif'
-	rifDoc['id'] = "oaipmh_record_rif_${mainDoc['id']}"
+	def mainDocId = mainDoc['id']
+	rifDoc['id'] = "oaipmh_record_rif_${mainDocId}"
 
 	def nowStamp = new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone("UTC")) 	// now build the DC string...
 	def stringw = new StringWriter()
-	def mainDocId = mainDoc['id']
-	def publisherProperty = 'https___schema_org_publisher'
-	def publisherId = getFirstElem(mainDoc[publisherProperty])['id']
+	def publisherProperties = ['https___schema_org_publisher', 'https://schema.org/publisher', 'https://schema.org/Publisher']
+	def publisherVal = null
+	publisherProperties.find { prop ->
+		publisherVal = getFirstElem(mainDoc[prop])
+		if (publisherVal) {
+			return true
+		}
+		return false
+	}
+
+	if (!publisherVal) {
+		logger.info("Record has no publisher property, skipping generation of RIF document.")
+		return null;
+	}
+	def publisherId = publisherVal['id'];
 	new MarkupBuilder(stringw).with { mb ->
 		record() {
 		  header {
@@ -146,4 +159,6 @@ def rifDoc = getRifDoc(document)
 def oaipmhMetaDoc = getOaipmhDoc(docList, recordTypeConfig['oai-pmh'].core)
 updateOaipmhLatest(oaipmhMetaDoc)
 docList << [document: oaidcDoc, core: recordTypeConfig['oai-pmh'].core]
-docList << [document: rifDoc, core: recordTypeConfig['oai-pmh'].core]
+if (rifDoc) {
+	docList << [document: rifDoc, core: recordTypeConfig['oai-pmh'].core]
+}

@@ -85,7 +85,7 @@ def getRifDoc(mainDoc) {
 		logger.info("Record has no publisher property, skipping generation of RIF document.")
 		return null;
 	}
-	def publisherId = publisherVal['id'];
+	def publisherId = publisherVal instanceof String ? publisherVal : (publisherVal instanceof Map ? publisherVal['id'] : publisherVal );
 	new MarkupBuilder(stringw).with { mb ->
 		record() {
 		  header {

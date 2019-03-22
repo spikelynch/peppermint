@@ -9,11 +9,12 @@ services:
     volumes:
       # When mounting update the code below to where you want to save your SOLR data
       # Please do before: sudo chown 8983:8983 /mnt/data/solr
-      # - "/mnt/data/solr:/opt/solr/server/solr/mycores"
+      - "/mnt/data/solr:/opt/solr/server/solr/mycores"
     entrypoint:
       - docker-entrypoint.sh
       - solr-precreate
       - dataset
+
   peppermint:
     image: qcifengineering/peppermint:latest
     ports:
@@ -23,20 +24,32 @@ services:
     links:
       - solr:solr
     # Uncomment volume def below for local development
-    # volumes:
-    #   - "./scripts:/opt/peppermint/scripts"
-    #   - "./config.json:/opt/peppermint/config.json"
-    #   - "./build/libs/peppermint-fat.jar:/opt/peppermint/build/libs/peppermint-fat.jar"
+    volumes:
+      - "./scripts:/opt/peppermint/scripts"
+      - "./config.json:/opt/peppermint/config.json"
+      - "./build/libs/peppermint-fat.jar:/opt/peppermint/build/libs/peppermint-fat.jar"
+      - "../publication:/opt/publication"
     environment:
       - SOLR_HOST=solr
       - SOLR_PORT=8983
+
   peppermint_portal:
-    image: qcifengineering/peppermint-portal:latest
+    image: peppermint-portal:latest
     ports:
       - "9001:80"
     # Uncomment below for local development
-    # volumes:
-    #   - "../peppermint-portal/build:/usr/share/nginx/html"
+    volumes:
+       - "../peppermint-portal/build:/usr/share/nginx/html"
+    logging:
+      driver: none
+
+  peppermint_runner:
+    image: peppermint-runner:latest
+    volumes:
+       - "../publication:/opt/publication"
+    logging:
+      driver: none
+
   solrcorsproxy:
     image: shakyshane/nginx-cors-plus
     ports:
@@ -45,17 +58,22 @@ services:
       - solr:solr
     environment:
       - TARGET=http://solr:8983/solr/dataset/select
+    logging:
+      driver: none
+
   proai:
     image: qcifengineering/proai-solr-driver:latest
     links:
       - postgres:postgres
       - solr:solr
     ports:
-      - "9000:8080"
-    # Uncomment volume def below for local development
+      - "8999:8080"
+    logging:
+      driver: none
     # volumes:
     #   - "../proai-solr-driver/proai.properties:/var/lib/jetty/webapps/ROOT/WEB-INF/classes/proai.properties"
     #   - "../proai-solr-driver/build/libs/proai-solr-driver-fat.jar:/var/lib/jetty/webapps/ROOT/WEB-INF/lib/proai-solr-driver-fat.jar"
+
   postgres:
     image: postgres:11.1-alpine
     ports:
@@ -64,14 +82,7 @@ services:
       - POSTGRES_USER=proai
       - POSTGRES_PASSWORD=proai
       - POSTGRES_DB=proai
-  # Comment out below if you want to harvest Datacrates into Peppermint
-  # peppermint_runner:
-  #   image: qcifengineering/peppermint-runner:latest
-  #   links:
-  #     - peppermint:peppermint
-  #   environment:
-  #     - RUN_AS_CRON=false
-  #   volumes:
-  #     - "../peppermint-runner/config.docker.json:/opt/peppermint-runner/config.json"
-  #     # Modify the ff. to point to your Datacrate directory
-  #     - "/mnt/data/publication/public/:/mnt/data/publication/public/"
+    logging:
+      driver: none
+
+ 

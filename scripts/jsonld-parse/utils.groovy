@@ -23,9 +23,20 @@ trim = { vals ->
 	return vals instanceof String ? vals.trim() : vals
 }
 
+
+
+//enforceSolrFieldNames = { k ->
+//	return k.replaceAll(/[^a-zA-Z\d_]/, '_')
+//}
+
+// using this to just trim the schema prefix and then
+// normalise any others
+
 enforceSolrFieldNames = { k ->
-	return k.replaceAll(/[^a-zA-Z\d_]/, '_')
+  k1 = k.replaceAll('https?://schema.org/', '');
+  return k1.replaceAll(/[^a-zA-Z\d_]/, '_')
 }
+
 
 ensureValidId = { val ->
   return val.replaceAll(/\s/, '_')
@@ -105,8 +116,10 @@ addKvAndFacetsToDocument = {data, k, v, docs, facetDoc, recordTypeConfig, entryT
     }
 	}
 
-  def facetConfig = recordTypeConfig.facets[k]
+  def facetConfig = recordTypeConfig.facets[solrField]
+  logger.info("Looking for facetConfig for ${solrField}");
 	if (facetConfig) {
+    logger.info("facetConfig found");
 		def vals = null
 		def val = facetConfig.fieldName && v instanceof Map  && v.containsKey(facetConfig.fieldName) ?  v[facetConfig.fieldName] : v
 		if (facetConfig.tokenize) {
@@ -134,7 +147,9 @@ addKvAndFacetsToDocument = {data, k, v, docs, facetDoc, recordTypeConfig, entryT
 			suffix = "_______${entryTypeFieldName}_______${suffix}"
 		}
 		facetDoc["${solrField}${suffix}"] = vals
-	}
+	} else {
+    logger.info("facetConfig not found for ${solrField}");
+  }
 
 
 }

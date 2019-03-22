@@ -29,27 +29,30 @@
           "scripts/jsonld-parse/add-root-dataset.groovy",
           "scripts/jsonld-parse/add-oaipmh.groovy"
         ],
-        "https://schema.org/Person": [
+        "Person": [
           "scripts/jsonld-parse/add-person.groovy"
         ],
-        "http://schema.org/GeoCoordinates": [
+        "GeoCoordinates": [
           "scripts/jsonld-parse/add-flattened-child.groovy",
           "scripts/jsonld-parse/geojson.groovy"
         ]
       },
-      "defaultHandlerScript": "scripts/jsonld-parse/add-flattened-child.groovy",
       "facets": {
-        "https://schema.org/datePublished": {
+        "datePublished": {
           "trim": true
         },
-        "https://schema.org/keywords": {
+        "keywords": {
           "trim": true,
           "field_suffix": "facet_multi",
           "tokenize": {
             "delim": ","
           }
         },
-        "https://schema.org/publisher": {
+        "Person": {
+          "trim": true,
+          "field_suffix": "facet_multi"
+        },
+        "publisher": {
           "trim": true,
           "fieldName": "@id"
         },
@@ -71,12 +74,6 @@
       "recordTypeName": "person",
       "defaultHandlerScript": "scripts/jsonld-parse/add-flattened-child.groovy",
       "facets": {
-        "https://schema.org/birthPlace": {
-          "trim": true
-        },
-        "https://schema.org/birthDate": {
-          "trim": true
-        },
         "@type": {
           "trim": true,
           "field_suffix": "facet_multi",
@@ -154,11 +151,11 @@
         ],
         "add-copy-field": [
           {
-            "source": "https___schema_org_name",
+            "source": "name",
             "dest": ["main_search"]
           },
           {
-            "source": "https___schema_org_description",
+            "source": "description",
             "dest": ["main_search"]
           },
           {

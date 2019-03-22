@@ -39,5 +39,10 @@ def entryTypeFieldName = enforceSolrFieldNames(entryType)
 entry.each { k, v ->
 	addKvAndFacetsToDocument(data, k, v, [doc, newDoc], newDoc, personConfig, entryTypeFieldName)
 }
-// docList << [document: newDoc, core: personConfig.core]
-document['_childDocuments_'] << doc
+
+// If the Person records are indexed as children of the dataset, the
+// same researcher will get a distinct index entry for each dataset
+// they appear in, which is not what we want. 
+
+docList << [document: newDoc, core: personConfig.core]
+// document['_childDocuments_'] << doc

@@ -37,7 +37,7 @@ evaluate(new File('scripts/jsonld-parse/utils.groovy'))
 // add to the main document
 logger.info("Processing root node....")
 // logger.info(JsonOutput.toJson(entry))
-def entryTypeFieldName = enforceSolrFieldNames("https://schema.org/Dataset")
+def entryTypeFieldName = enforceSolrFieldNames("Dataset");
 entry.each { k, v ->
 	addKvAndFacetsToDocument(data, k, v, [document], document, recordTypeConfig, entryTypeFieldName)
 }

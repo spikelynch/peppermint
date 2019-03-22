@@ -47,9 +47,9 @@ def processEntry(manager, engine, entry, type, useDefaultHandler) {
 		}
 	} else {
 		if (useDefaultHandler) {
-			logger.debug("No script configured for type: ${type}, running default handler if configured, ignoring if not.");
 			script = recordTypeConfig['defaultHandlerScript']
 			if (script) {
+			    logger.info("No script configured for type: ${type}, running default handler.");
 				try {
 					engine.eval(new FileReader(script))
 				} catch (e) {
@@ -60,20 +60,23 @@ def processEntry(manager, engine, entry, type, useDefaultHandler) {
 					logger.error(sw.toString())
 					throw e
 				}
+			} else {
+			    logger.info("No script configured for type: ${type}. No default handler.");
 			}
 		} else {
-			logger.error("No script configured for: ${type}, and not using default handler, ignoring.")
+			logger.info("No script configured for: ${type}, and not using default handler.")
 		}
 	}
 }
 
 def ensureSchemaOrgHttps(data) {
 	def newContext = [:]
-	data['@context'].each {key, val ->
+	data['@context'].each { key, val ->
 		newContext[key] = val.replaceAll('http://schema.org', 'https://schema.org')
 	}
 	data['@context'] = newContext
 }
+
 
 boolean isCollectionOrArray(object) {
     [Collection, Object[]].any { it.isAssignableFrom(object.getClass()) }
@@ -139,7 +142,7 @@ if (compacted['@graph']) {
 		if (entry['@id'] == rootNode['@id']) {
 			processEntry(manager, engine, entry, 'rootNode', false)
 		} else {
-			def type = entry['@type']
+			def type = enforceSolrFieldNames(entry['@type']);
 			if (type instanceof Collection) {
 				type.each { t ->
 					processEntry(manager, engine, entry, t, true)
@@ -153,4 +156,5 @@ if (compacted['@graph']) {
 // document["raw_compacted_t"] = JsonOutput.toJson(compacted)
 document["date_updated_dt"] = new Date()
 docList << [document: document, core: recordTypeConfig.core]
+
 return docList

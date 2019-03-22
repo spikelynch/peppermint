@@ -43,22 +43,23 @@
         },
         "keywords": {
           "trim": true,
-          "field_suffix": "facet_multi",
+          "field_suffix": "facetmulti",
           "tokenize": {
             "delim": ","
           }
         },
         "Person": {
           "trim": true,
-          "field_suffix": "facet_multi"
+          "fieldName": "@id",
+          "field_suffix": "facetmulti"
         },
         "publisher": {
           "trim": true,
           "fieldName": "@id"
         },
-        "@type": {
+        "type": {
           "trim": true,
-          "field_suffix": "facet_multi",
+          "field_suffix": "facetmulti",
           "skip_entry_type_suffix": true,
           "escape_value": "solr_field"
         }
@@ -76,7 +77,7 @@
       "facets": {
         "@type": {
           "trim": true,
-          "field_suffix": "facet_multi",
+          "field_suffix": "facetmulti",
           "skip_entry_type_suffix": true,
           "escape_value": "solr_field"
         }
@@ -139,7 +140,7 @@
             "stored": true
           },
           {
-            "name": "*_facet_multi",
+            "name": "*_facetmulti",
             "type": "strings",
             "stored": true,
           },

@@ -72,8 +72,9 @@ addKvAndFacetsToDocument = {data, k, v, docs, facetDoc, recordTypeConfig, entryT
     // select the type label as the last one...
     def vparts = typeVal.split('/')
     def typeLabel  = vparts[vparts.length - 1]
+    // stripping the schema domain off the types
     docs.each { doc ->
-      doc['type'] = v
+      doc['type'] = typeLabel
       doc['type_label'] = typeLabel;
     }
 		solrField = 'type'
@@ -142,9 +143,9 @@ addKvAndFacetsToDocument = {data, k, v, docs, facetDoc, recordTypeConfig, entryT
 			suffix = facetConfig.field_suffix
 		}
 		if (facetConfig.skip_entry_type_suffix) {
-			suffix = "_______${suffix}"
+			suffix = "_${suffix}"
 		} else {
-			suffix = "_______${entryTypeFieldName}_______${suffix}"
+			suffix = "_${entryTypeFieldName}_${suffix}"
 		}
 		facetDoc["${solrField}${suffix}"] = vals
 	} else {

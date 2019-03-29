@@ -123,12 +123,12 @@ addKvAndFacetsToDocument = {data, k, v, docs, facetDoc, recordTypeConfig, entryT
 	if (facetConfig) {
     logger.info("facetConfig found");
 		def vals = null
-    def val facetConfig.fieldName && v instanceof Map && v.containsKey(facetConfig.fieldName) ?  v[facetConfig.fieldName] : v;
-    // if( facetConfig.relation ) {
-    //   val = v['relation_' + facetConfig.relation];
-    // } else {
-		  // val = 
-    // }
+    def val;
+    if( facetConfig.relation ) {
+      val = v['relation_' + facetConfig.relation]
+    } else {
+		  val =  facetConfig.fieldName && v instanceof Map && v.containsKey(facetConfig.fieldName) ?  v[facetConfig.fieldName] : v;
+    }
 		if (facetConfig.tokenize) {
 			vals = val ? val.tokenize(facetConfig.tokenize.delim) : val
 		} else {

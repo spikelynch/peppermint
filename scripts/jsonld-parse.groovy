@@ -184,7 +184,7 @@ if (compacted['@graph']) {
 		return it[rootNodeId] instanceof Collection ? rootNodeVals.intersect(it[rootNodeId]).size() > 0 : rootNodeVals.contains(it[rootNodeId]) // it[rootNodeId] == 'data/' || it[rootNodeId]== './'
 	}
 
-	// def rootResolved = resolveGraphLinks(recordTypeConfig.facets, rootNode, graph);
+	def rootResolved = resolveGraphLinks(recordTypeConfig['facets'], rootNode, graph);
 
 	graph.each { entry ->
 		if (entry['@id'] == rootNode['@id']) {

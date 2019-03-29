@@ -106,6 +106,50 @@ def ensureIdsAreCleanAndShinyAndNiceAndWonderful(data) {
 	}
 	return modified
 }
+
+
+// This looks for all facets with a 'relation' value, scans the
+// graph for items of the given type in that relation to the
+// root node, and lifts their value (specified by fieldName)
+// into the rootNode. It returns the updated rootNode.
+
+// for eg, with the following in the facets config:
+
+// "Person": {
+//   "relation": "creator",
+//   "trim": true,
+//   "fieldName": "name",
+//   "field_suffix": "facetmulti"
+// },
+
+// the Solr document gets this:
+//
+// "Person": [ "Joe Blow", "Fred Nurks" ]
+
+def resolveGraphLinks(facets, rootNode, graph) {
+	def newRoot = rootNode.clone();
+	facets.each { facetField, cf ->
+		def relation = cf['relation'];
+		if( relation ) {
+			def links = findRelated(rootNode, relation, graph);
+			links.each { l ->
+				newRoot[facetField] = l[cf['fieldName']];
+				logger.info("Lifted " + relation + ": " + l[cf['fieldName']]);
+			}
+		}
+	} 
+	return newRoot
+}
+
+def findRelated(rootNode, relation, graph) {
+	if( rootNode[relation] && rootNode[relation] instanceof Collection ) {
+		def ids = rootNode[relation].collect { it['@id'] };
+		return graph.findAll { it['@id'] in ids }
+	} else {
+		return [];
+	}
+}
+
 //-------------------------------------------------------
 // Start of Script
 //-------------------------------------------------------
@@ -131,6 +175,7 @@ document['_childDocuments_'] = []
 JsonLdOptions options = new JsonLdOptions()
 def compacted = JsonLdProcessor.compact(data, context, options);
 if (compacted['@graph']) {
+	def graph = compacted['@graph'];
 	// find the root node of the graph...
 	def rootNodeId = recordTypeConfig['rootNodeFieldContextId']
 	def rootNodeVals = recordTypeConfig['rootNodeFieldValues'];
@@ -138,9 +183,12 @@ if (compacted['@graph']) {
 	def rootNode = data['@graph'].find {
 		return it[rootNodeId] instanceof Collection ? rootNodeVals.intersect(it[rootNodeId]).size() > 0 : rootNodeVals.contains(it[rootNodeId]) // it[rootNodeId] == 'data/' || it[rootNodeId]== './'
 	}
-	compacted['@graph'].each { entry ->
+
+	//def rootResolved = resolveGraphLinks(recordTypeConfig.facets, rootNode, graph);
+
+	graph.each { entry ->
 		if (entry['@id'] == rootNode['@id']) {
-			processEntry(manager, engine, entry, 'rootNode', false)
+			processEntry(manager, engine, rootNode, 'rootNode', false)
 		} else {
 			def type = enforceSolrFieldNames(entry['@type']);
 			if (type instanceof Collection) {

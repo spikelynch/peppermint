@@ -123,17 +123,11 @@ addKvAndFacetsToDocument = {data, k, v, docs, facetDoc, recordTypeConfig, entryT
   // stored as Person, or should be.
 
   def facetConfig = recordTypeConfig.facets[solrField]
-  //logger.info("Looking for facetConfig for ${solrField}");
+
 	if (facetConfig) {
-    //logger.info("facetConfig found");
 		def vals = null
-    def val;
-    if( facetConfig.relation ) {
-      val = v['relation_' + facetConfig.relation]
-    } else {
-		  val =  facetConfig.fieldName && v instanceof Map && v.containsKey(facetConfig.fieldName) ?  v[facetConfig.fieldName] : v;
-    }
-		if (facetConfig.tokenize) {
+    def val =  facetConfig.fieldName && v instanceof Map && v.containsKey(facetConfig.fieldName) ?  v[facetConfig.fieldName] : v;
+ 		if (facetConfig.tokenize) {
 			vals = val ? val.tokenize(facetConfig.tokenize.delim) : val
 		} else {
 			vals = val
@@ -158,9 +152,8 @@ addKvAndFacetsToDocument = {data, k, v, docs, facetDoc, recordTypeConfig, entryT
 			suffix = "_${entryTypeFieldName}_${suffix}"
 		}
 		facetDoc["${solrField}${suffix}"] = vals
-	} else {
-    // logger.info("facetConfig not found for ${solrField}");
-  }
+    logger.info("Facet ${solrField} = " + vals)
+	} 
 
 
 }

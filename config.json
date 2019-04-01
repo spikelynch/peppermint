@@ -48,7 +48,7 @@
             "delim": ","
           }
         },
-        "Person": {
+        "creator": {
           "trim": true,
           "fieldName": "https://schema.org/name",
           "field_suffix": "facetmulti"

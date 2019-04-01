@@ -49,9 +49,8 @@
           }
         },
         "Person": {
-          "relation": "creator",
           "trim": true,
-          "fieldName": "name",
+          "fieldName": "https://schema.org/name",
           "field_suffix": "facetmulti"
         },
         "publisher": {

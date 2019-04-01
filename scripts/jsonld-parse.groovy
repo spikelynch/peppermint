@@ -126,16 +126,18 @@ def ensureIdsAreCleanAndShinyAndNiceAndWonderful(data) {
 //
 // "Person": [ "Joe Blow", "Fred Nurks" ]
 
+// this isn't working, because the cf['fieldName'] needs schema.org
+
 def resolveGraphLinks(facets, rootNode, graph) {
 	def newRoot = rootNode.clone();
 	facets.each { facetField, cf ->
 		def relation = cf['relation'];
 		if( relation ) {
+			//logger.info("Relation: " + relation);
 			def links = findRelated(rootNode, relation, graph);
-			links.each { l ->
-				newRoot[facetField] = l[cf['fieldName']];
-				logger.info("Lifted " + relation + ": " + l[cf['fieldName']]);
-			}
+			//logger.info("Links: " + links);
+			newRoot[facetField] = links.collect { l -> l[cf['fieldName']] }
+			//logger.info("Lifted " + facetField + ": " + newRoot[facetField]);
 		}
 	} 
 	return newRoot
@@ -179,12 +181,15 @@ if (compacted['@graph']) {
 	// find the root node of the graph...
 	def rootNodeId = recordTypeConfig['rootNodeFieldContextId']
 	def rootNodeVals = recordTypeConfig['rootNodeFieldValues'];
-	logger.info("Using rootNodeId:" + rootNodeId)
+	//logger.info("Using rootNodeId:" + rootNodeId)
 	def rootNode = data['@graph'].find {
 		return it[rootNodeId] instanceof Collection ? rootNodeVals.intersect(it[rootNodeId]).size() > 0 : rootNodeVals.contains(it[rootNodeId]) // it[rootNodeId] == 'data/' || it[rootNodeId]== './'
 	}
 
 	def rootResolved = resolveGraphLinks(recordTypeConfig['facets'], rootNode, graph);
+
+	//logger.info("rootResolved:");
+	//logger.info(rootResolved);
 
 	graph.each { entry ->
 		if (entry['@id'] == rootNode['@id']) {

@@ -86,6 +86,7 @@ addKvAndFacetsToDocument = {data, k, v, docs, facetDoc, recordTypeConfig, entryT
   } else {
     if (v instanceof Map || v instanceof List) {
       def expanded = null
+      logger.info("Expanding: " + v)
       if (v instanceof Map && v['@id']) {
         expanded = getGraphEntry(data, v['@id'])
         docs.each { doc ->
@@ -117,11 +118,14 @@ addKvAndFacetsToDocument = {data, k, v, docs, facetDoc, recordTypeConfig, entryT
     }
 	}
 
+  // this is broken. Figure out how the creators are getting lifted by the
+  // already existing code, and then facet those.  The new facets are being
+  // stored as Person, or should be.
 
   def facetConfig = recordTypeConfig.facets[solrField]
-  logger.info("Looking for facetConfig for ${solrField}");
+  //logger.info("Looking for facetConfig for ${solrField}");
 	if (facetConfig) {
-    logger.info("facetConfig found");
+    //logger.info("facetConfig found");
 		def vals = null
     def val;
     if( facetConfig.relation ) {
@@ -155,7 +159,7 @@ addKvAndFacetsToDocument = {data, k, v, docs, facetDoc, recordTypeConfig, entryT
 		}
 		facetDoc["${solrField}${suffix}"] = vals
 	} else {
-    logger.info("facetConfig not found for ${solrField}");
+    // logger.info("facetConfig not found for ${solrField}");
   }
 
 

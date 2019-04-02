@@ -50,7 +50,7 @@
         },
         "creator": {
           "trim": true,
-          "fieldName": "https://schema.org/name",
+          "fieldName": "name",
           "field_suffix": "facetmulti"
         },
         "publisher": {

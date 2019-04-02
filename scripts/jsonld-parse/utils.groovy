@@ -86,7 +86,6 @@ addKvAndFacetsToDocument = {data, k, v, docs, facetDoc, recordTypeConfig, entryT
   } else {
     if (v instanceof Map || v instanceof List) {
       def expanded = null
-      logger.info("Expanding: " + v)
       if (v instanceof Map && v['@id']) {
         expanded = getGraphEntry(data, v['@id'])
         docs.each { doc ->
@@ -97,7 +96,7 @@ addKvAndFacetsToDocument = {data, k, v, docs, facetDoc, recordTypeConfig, entryT
           }
         }
       } else {
-        v.each {vEntry ->
+        v.each { vEntry ->
           if (vEntry instanceof Map && vEntry['@id']) {
             expanded = getGraphEntry(data, vEntry['@id'])
             if (expanded && expanded instanceof Map) {
@@ -118,20 +117,29 @@ addKvAndFacetsToDocument = {data, k, v, docs, facetDoc, recordTypeConfig, entryT
     }
 	}
 
-  // this is broken. Figure out how the creators are getting lifted by the
-  // already existing code, and then facet those.  The new facets are being
-  // stored as Person, or should be.
 
   def facetConfig = recordTypeConfig.facets[solrField]
 
 	if (facetConfig) {
 		def vals = null
-    def val =  facetConfig.fieldName && v instanceof Map && v.containsKey(facetConfig.fieldName) ?  v[facetConfig.fieldName] : v;
- 		if (facetConfig.tokenize) {
-			vals = val ? val.tokenize(facetConfig.tokenize.delim) : val
-		} else {
-			vals = val
-		}
+    def val = v;
+
+    // The logic of this is a bit klutzy but I'm assuming that fieldName and
+    // tokenize don't make sense on the one field 
+
+    if( facetConfig.fieldName ) {
+      if( v instanceof Map ) {
+        vals = v[facetConfig.fieldName];
+      } else if( v instanceof List ) {
+        vals = v.collect { x -> x[facetConfig.fieldName] }
+      }
+    } else {
+   		if (facetConfig.tokenize) {
+			   vals = val ? val.tokenize(facetConfig.tokenize.delim) : val
+		  } else {
+        vals = val
+      }
+    }
 		if (facetConfig.trim) {
 			vals =  trim(vals)
 		}

@@ -75,7 +75,7 @@
       "recordTypeName": "person",
       "defaultHandlerScript": "scripts/jsonld-parse/add-flattened-child.groovy",
       "facets": {
-        "@type": {
+        "type": {
           "trim": true,
           "field_suffix": "facetmulti",
           "skip_entry_type_suffix": true,

@@ -102,6 +102,11 @@
             "stored": true
           },
           {
+            "name": "description",
+            "type": "text_en",
+            "stored": true
+          },
+          {
             "name": "main_search",
             "type": "text_en",
             "stored": true,
